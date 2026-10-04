@@ -1,0 +1,14 @@
+**/node_modules/
+**/dist/
+**/build/
+**/.cache/
+**/.vite/
+**/.figma/
+**/.capture-mobile-profile*/
+**/.env
+**/.env.*
+**/*.tsbuildinfo
+**/*-debug.log*
+**/*.log
+**/Thumbs.db
+**/.DS_Store

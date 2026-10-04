@@ -1,0 +1,18 @@
+Mencionar el alcance
+
+Fasear el onboarding
+
+Armar el árbol de contenido con el viaje de usuario y casos de uso
+
+
+Mostrar los tipos de tour, conceptos y proyectos que irían para cada uno
+
+Mencionar los puntos vistos con SAC para con eso definir los primeros proyectos a sacar el onboarding
+
+Pantallas en wireframes
+
+
+Condensar el benchmark y resaltar las mejores propuestas
+
+Próximos pasos
+manu geral y juan
