@@ -356,7 +356,14 @@ function guideView(id, step = 0) {
   const bulletList = bullets.length ? `<ul>${bullets.map((item) => `<li>${item}</li>`).join('')}</ul>` : '';
   modalLayer.innerHTML = `<section class="guide-modal" role="dialog" aria-modal="true" aria-labelledby="guideStepTitle"><button class="guide-modal-close" data-action="discover" type="button" aria-label="Cerrar guía">×</button><div class="guide-modal-image ${id}${id === 'kyc' ? ' has-video' : ''} kyc-step-${step + 1}" data-guide-media="${id}">${media}</div><div class="guide-modal-copy"><span class="guide-modal-eyebrow">${guide.title}</span><h3 id="guideStepTitle">${title}</h3><p>${body}</p>${bulletList}</div><div class="guide-modal-progress"><span>Paso ${step + 1} de ${guide.steps.length}</span><div>${guide.steps.map((_, index) => `<i class="${index <= step ? 'is-current' : ''}"></i>`).join('')}</div></div><div class="guide-modal-actions"><button class="guide-modal-button guide-modal-button--secondary" data-guide-prev="${id}" data-step="${step}" type="button" ${step === 0 ? 'disabled' : ''}>Anterior</button><button class="guide-modal-button" data-guide-next="${id}" data-step="${step}" type="button">${finalStep ? finalLabel : 'Continuar'}</button></div></section>`;
   drawerContent.append(modalLayer);
-  requestAnimationFrame(() => modalLayer.querySelector('.guide-modal-close')?.focus());
+  requestAnimationFrame(() => {
+    const video = modalLayer.querySelector('video');
+    if (video) {
+      video.playbackRate = 1.5;
+      video.play().catch(() => {});
+    }
+    modalLayer.querySelector('.guide-modal-close')?.focus();
+  });
 }
 function closeGuide() {
   drawerContent.querySelector('.guide-modal-layer')?.remove();
@@ -409,12 +416,16 @@ function positionAnchoredCoachmark(target, coachmark, { gap = 18, padding = 18 }
   if (mobile) {
     const coachmarkHeight = coachmark.offsetHeight || 150;
     const readingTerms = target.closest('.club-prototype-layer')?.dataset.clubScreen === 'terms';
-    const targetIsLow = readingTerms || rect.bottom > window.innerHeight - coachmarkHeight - 94;
     coachmark.style.left = '12px';
     coachmark.style.right = '12px';
-    coachmark.style.top = targetIsLow ? '76px' : 'auto';
-    coachmark.style.bottom = targetIsLow ? 'auto' : '76px';
     coachmark.style.width = 'auto';
+    const topBelow = rect.bottom + gap;
+    const topAbove = rect.top - coachmarkHeight - gap;
+    const minTop = readingTerms ? 70 : 62;
+    const maxTop = window.innerHeight - coachmarkHeight - 72;
+    const top = topBelow <= maxTop ? topBelow : topAbove >= minTop ? topAbove : Math.max(minTop, maxTop);
+    coachmark.style.top = `${Math.max(minTop, top)}px`;
+    coachmark.style.bottom = 'auto';
     return;
   }
   const width = Math.min(340, window.innerWidth - padding * 2);
@@ -654,6 +665,10 @@ function clubOrientationCoachmark(step, title, body) {
   return `<aside class="club-prototype-coachmark" role="status"><span>Conoce Club Olimpo</span><strong>${title}</strong><p>${body}</p><span>Paso ${displayStep} de ${total}</span>${tourProgressBar(displayStep, total)}<div class="club-orientation-controls"><button data-club-orientation-prev type="button" ${step === 1 ? 'disabled' : ''}>Anterior</button><button data-club-orientation-next type="button">${final ? 'Finalizar' : 'Continuar'}</button></div></aside>`;
 }
 
+function clubMobileEntryScreen() {
+  return `${clubHeader('', 'main')}<main class="club-mobile-entry-screen"><div class="club-mobile-entry-copy"><span>Conoce Club Olimpo</span><h1>Encuentra tus puntos y recompensas</h1><p>Desde el menú inferior puedes entrar a Club Olimpo y comenzar tu recorrido.</p></div></main><aside class="club-prototype-coachmark club-mobile-entry-coachmark" role="status"><span>Conoce Club Olimpo</span><strong>Entra a Club Olimpo</strong><p>Pulsa «Club Olimpo» en el menú inferior para continuar.</p><span>Paso 1 de ${clubOrientationSteps.length + 1}</span>${tourProgressBar(1, clubOrientationSteps.length + 1)}</aside>`;
+}
+
 function positionClubOrientationEntry() {
   if (!clubOrientation.active || clubOrientation.layer) return;
   const rect = clubNavTrigger.getBoundingClientRect();
@@ -682,6 +697,15 @@ function renderClubOrientationStep() {
   });
 }
 
+function renderClubMobileEntry() {
+  if (!clubOrientation.layer) return;
+  clubOrientation.layer.dataset.clubScreen = 'mobile-entry';
+  clubOrientation.layer.innerHTML = `<button class="club-prototype-close" data-club-close type="button" aria-label="Cerrar recorrido">×</button>${clubMobileEntryScreen()}`;
+  const target = clubOrientation.layer.querySelector('.club-main-header nav button:nth-child(3)');
+  target?.classList.add('club-guide-target');
+  requestAnimationFrame(() => positionAnchoredCoachmark(target, clubOrientation.layer?.querySelector('.club-mobile-entry-coachmark')));
+}
+
 function advanceClubOrientation(delta) {
   const next = clubOrientation.step + delta;
   if (next < 0) return;
@@ -701,6 +725,7 @@ function openClubOrientationHome() {
   layer.setAttribute('aria-label', 'Recorrido de orientación de Club Olimpo');
   layer.addEventListener('click', (event) => {
     if (event.target.closest('[data-club-close]')) { finishClubOrientationGuide(); return; }
+    if (clubOrientation.layer?.dataset.clubScreen === 'mobile-entry' && event.target.closest('.club-main-header nav button:nth-child(3)')) { clubOrientation.step = 0; renderClubOrientationStep(); return; }
     if (event.target.closest('[data-club-orientation-next]')) { advanceClubOrientation(1); return; }
     if (event.target.closest('[data-club-orientation-prev]')) { advanceClubOrientation(-1); return; }
   });
@@ -730,6 +755,23 @@ function finishClubOrientationGuide({ completed = false } = {}) {
 function startClubOrientationGuide() {
   if (clubOrientation.active || !onboardingTaskIsUnlocked('club')) return;
   closeDrawer();
+  if (window.matchMedia('(max-width: 768px)').matches) {
+    const layer = document.createElement('section');
+    layer.className = 'club-prototype-layer';
+    layer.setAttribute('aria-label', 'Recorrido de orientación de Club Olimpo');
+    layer.addEventListener('click', (event) => {
+      if (event.target.closest('[data-club-close]')) { finishClubOrientationGuide(); return; }
+      if (event.target.closest('.club-main-header nav button:nth-child(3)')) { clubOrientation.step = 0; renderClubOrientationStep(); return; }
+      if (event.target.closest('[data-club-orientation-next]')) { advanceClubOrientation(1); return; }
+      if (event.target.closest('[data-club-orientation-prev]')) { advanceClubOrientation(-1); return; }
+    });
+    document.body.append(layer);
+    clubOrientation.layer = layer;
+    clubOrientation.active = true;
+    clubOrientation.step = 0;
+    renderClubMobileEntry();
+    return;
+  }
   clubOrientation.active = true;
   const overlay = document.createElement('div');
   overlay.className = 'initial-onboarding-overlay deposit-guide-overlay';
@@ -752,7 +794,9 @@ function startClubOrientationGuide() {
 }
 
 function clubHomeScreen({ guide = true } = {}) {
-  return `${clubHeader('', 'main')}<main class="club-home-screen"><section class="club-home-hero" aria-label="Club Olimpo"><picture><source media="(max-width:768px)" srcset="https://www.olimpo.bet/assets/img/clubOlimpo/banners/guerrero.png"><img src="https://www.olimpo.bet/assets/img/clubOlimpo/banners/desktop/guerrero.png" alt="Empieza como Guerrero"></picture></section><section class="club-home-summary"><div class="club-level" tabindex="-1"><p>Necesitas <b>798 puntos de nivel</b> más para ser Espartano.</p><div class="club-level-track"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="club-level-labels"><span>Guerrero<b>0 P</b></span><span>Espartano<b>800 P</b></span><span>Héroe<b>5,000 P</b></span><span>Rey<b>25,000 P</b></span><span>Titán<b>100,000 P</b></span><span>Dios<b>400,000 P</b></span></div><button type="button">Ver nivel</button></div><div class="club-points-card" tabindex="-1"><h2>Tienes <b>${clubPoints}</b> puntos canjeables</h2><p>ⓘ 0 puntos vencerán el 30/9/2026</p><div><button class="club-guide-target" data-club-next="portal" type="button">¡Quiero canjear!</button><button type="button">Ver historial</button></div></div></section><section class="club-levels-preview"><h2>Niveles de divinidad</h2><p>Explora cada nivel y descubre los beneficios exclusivos que desbloqueas conforme avanzas.</p><div><article><strong>Nivel GUERRERO</strong><span>Desbloqueado con 0 puntos</span></article><article><strong>Nivel ESPARTANO</strong><span>Desbloqueado con 800 puntos</span></article><article><strong>Nivel HÉROE</strong><span>Desbloqueado con 5,000 puntos</span></article></div></section><section class="club-rewards-preview" tabindex="-1" aria-label="Qué puedes canjear"><h2>¿Qué puedes canjear?</h2><div><span><i>🍕</i><small>Fast food</small></span><span><i>🎧</i><small>Audio y Tecnología</small></span><span><i>🏠</i><small>Electrohogar</small></span><span><i>🧴</i><small>Cuidado personal</small></span><span><i>⛺</i><small>Outdoor</small></span></div></section></main>${guide ? clubCoachmark(1, 'Tus puntos están listos', 'Pulsa «¡Quiero canjear!» para entrar a la tienda de Club Olimpo.') : ''}`;
+  const rewardItems = [['pizza.png', 'Fast food', 'Pizza'], ['tv.png', 'Audio y Tecnología', 'TV'], ['coffee.png', 'Electrohogar', 'Coffee'], ['perfume.png', 'Cuidado personal', 'Perfume'], ['parrilla.png', 'Outdoor', 'Parrilla']]
+    .map(([asset, label, alt]) => `<span><i><img src="assets/imgs/club/${asset}" alt="${alt}"></i><small>${label}</small></span>`).join('');
+  return `${clubHeader('', 'main')}<main class="club-home-screen"><section class="club-home-hero" aria-label="Club Olimpo"><picture><source media="(max-width:768px)" srcset="https://www.olimpo.bet/assets/img/clubOlimpo/banners/guerrero.png"><img src="https://www.olimpo.bet/assets/img/clubOlimpo/banners/desktop/guerrero.png" alt="Empieza como Guerrero"></picture></section><section class="club-home-summary"><div class="club-level" tabindex="-1"><p>Necesitas <b>798 puntos de nivel</b> más para ser Espartano.</p><div class="club-level-track"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="club-level-labels"><span>Guerrero<b>0 P</b></span><span>Espartano<b>800 P</b></span><span>Héroe<b>5,000 P</b></span><span>Rey<b>25,000 P</b></span><span>Titán<b>100,000 P</b></span><span>Dios<b>400,000 P</b></span></div><button type="button">Ver nivel</button></div><div class="club-points-card" tabindex="-1"><h2>Tienes <b>${clubPoints}</b> puntos canjeables</h2><p>ⓘ 0 puntos vencerán el 30/9/2026</p><div><button class="club-guide-target" data-club-next="portal" type="button">¡Quiero canjear!</button><button type="button">Ver historial</button></div></div></section><section class="club-levels-preview"><h2>Niveles de divinidad</h2><p>Explora cada nivel y descubre los beneficios exclusivos que desbloqueas conforme avanzas.</p><div><article><strong>Nivel GUERRERO</strong><span>Desbloqueado con 0 puntos</span></article><article><strong>Nivel ESPARTANO</strong><span>Desbloqueado con 800 puntos</span></article><article><strong>Nivel HÉROE</strong><span>Desbloqueado con 5,000 puntos</span></article></div></section><section class="club-rewards-preview" tabindex="-1" aria-label="Qué puedes canjear"><h2>¿Qué puedes canjear?</h2><div>${rewardItems}</div><button class="club-store-link" type="button">Ir a la tienda</button></section></main>${guide ? clubCoachmark(1, 'Tus puntos están listos', 'Pulsa «¡Quiero canjear!» para entrar a la tienda de Club Olimpo.') : ''}`;
 }
 
 function clubPortalScreen() {
@@ -766,7 +810,7 @@ function clubMarketplaceScreen({ guide = true } = {}) {
 }
 
 function clubTermsScreen() {
-  return `${clubMarketplaceScreen({ guide: false })}<div class="club-confirmation-layer club-terms-layer"><section class="club-ticket-detail club-guide-target" role="dialog" aria-modal="true" aria-label="Detalle y términos del bono"><picture><source media="(max-width:767px)" srcset="assets/imgs/ticket-detalle-mobile-2.png"><img src="assets/imgs/ticket-detalle-web-2.png" alt="Detalle del bono, términos y condiciones y botón Canjear"></picture><button class="club-detail-redeem-hotspot" data-club-next="success" type="button" aria-label="Canjear el bono después de leer los términos y condiciones"></button></section></div>${clubCoachmark(4, 'Lee antes de canjear', 'Revisa los términos y condiciones del bono. Cuando termines, pulsa «Canjear» dentro del detalle para continuar.')}`;
+  return `${clubMarketplaceScreen({ guide: false })}<div class="club-confirmation-layer club-terms-layer"><section class="club-ticket-detail" role="dialog" aria-modal="true" aria-label="Detalle y términos del bono"><div class="club-ticket-detail-layout"><article class="club-ticket-summary"><picture><source media="(max-width:767px)" srcset="assets/imgs/ticket-mobile-1.png"><img src="assets/imgs/ticket-web-1.png" alt="Bono de apuesta deportiva de S/50"></picture><span class="club-ticket-detail-badge">NUEVO</span><div><strong>Bono de apuesta deportiva de S/50</strong><p>Canjea por 5,000 puntos</p></div></article><article class="club-ticket-terms club-guide-target" aria-label="Términos y condiciones del bono"><h2>Términos y condiciones</h2><p>Cuota mínima por evento 2.0, por cupón 2.0, cuota máxima por cupón 20. Se añadirá al saldo la ganancia neta (se descuenta el monto de la jugada).</p><ul><li>No válido para apuestas combinadas en un mismo evento.</li><li>No aplica para apuestas con Cashout ni Creador de apuestas.</li><li>Después de otorgada la promoción, esta tiene una vigencia de 7 días.</li><li>No válido para apuestas live, betbuilder ni E-sports.</li><li>No se considerarán apuestas para resultados complementarios de un mismo mercado en un mismo evento.</li><li>En caso de retiro antes de cumplir las condiciones, se cancelan el bono y las ganancias asociadas.</li></ul><button class="club-detail-redeem-button" data-club-next="success" type="button">Canjear por 🪙 5,000</button></article></div></section></div>${clubCoachmark(4, 'Lee las condiciones del bono', 'Esta sección muestra exactamente las reglas que aplican: cuotas, vigencia, mercados válidos y condiciones de retiro.')}`;
 }
 
 function clubSuccessScreen() {
