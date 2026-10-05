@@ -833,6 +833,15 @@ function positionClubJourneyUI() {
   const target = layer.querySelector('.club-guide-target');
   const coachmark = layer.querySelector('.club-prototype-coachmark');
   positionClubJourneyCoachmark(target, coachmark);
+  const focus = layer.querySelector('.club-journey-focus');
+  if (target && focus) {
+    const rect = target.getBoundingClientRect();
+    focus.style.left = `${rect.left - 7}px`;
+    focus.style.top = `${rect.top - 7}px`;
+    focus.style.width = `${rect.width + 14}px`;
+    focus.style.height = `${rect.height + 14}px`;
+    requestAnimationFrame(() => layer.classList.add('is-journey-positioned'));
+  }
   positionClubGuidePointer(target, coachmark, layer.querySelector('.club-coachmark-pointer'), clubJourney.step);
 }
 
@@ -1073,6 +1082,8 @@ function renderClubJourney(stepIndex = clubJourney.step) {
   if (!clubJourney.layer) return;
   window.clearTimeout(clubJourney.timer);
   const previousScreen = clubJourney.layer.dataset.clubScreen;
+  const persistentCoachmark = clubJourney.layer.querySelector('#clubJourneyCoachmark');
+  const persistentFocus = clubJourney.layer.querySelector('.club-journey-focus');
   clubJourney.step = stepIndex;
   const step = clubRedemptionSteps[stepIndex];
   const screens = { home: clubHomeScreen, portal: clubPortalScreen, marketplace: clubMarketplaceScreen, terms: clubTermsScreen, success: clubSuccessScreen };
@@ -1081,6 +1092,8 @@ function renderClubJourney(stepIndex = clubJourney.step) {
   clubJourney.layer.dataset.clubScreen = step.screen;
   clubJourney.layer.dataset.clubStep = String(stepIndex);
   clubJourney.layer.innerHTML = `<button class="club-prototype-close" data-club-close type="button" aria-label="Cerrar recorrido">×</button>${screens[step.screen]({ guide: false })}${clubMobileNavMarkup()}`;
+  if (persistentCoachmark) clubJourney.layer.append(persistentCoachmark);
+  if (persistentFocus) clubJourney.layer.append(persistentFocus);
   if (previousScreen !== step.screen) clubJourney.layer.scrollTop = 0;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   clubJourney.timer = window.setTimeout(() => {
@@ -1092,7 +1105,15 @@ function renderClubJourney(stepIndex = clubJourney.step) {
     target.setAttribute('aria-describedby', 'clubJourneyCoachmark');
     clubJourney.layer.classList.add('is-guide-active');
     clubJourney.layer.dataset.clubGuideState = 'guided';
-    clubJourney.layer.insertAdjacentHTML('beforeend', `${clubCoachmark(stepIndex)}${clubJourneyPointerSteps.has(stepIndex) ? `<span class="club-coachmark-pointer" aria-hidden="true"></span>${clubJourneyCursorTuner(stepIndex)}` : ''}`);
+    if (persistentCoachmark) {
+      const template = document.createElement('template');
+      template.innerHTML = clubCoachmark(stepIndex);
+      persistentCoachmark.innerHTML = template.content.firstElementChild.innerHTML;
+    } else {
+      clubJourney.layer.insertAdjacentHTML('beforeend', clubCoachmark(stepIndex));
+    }
+    if (!persistentFocus) clubJourney.layer.insertAdjacentHTML('beforeend', '<span class="initial-onboarding-focus club-journey-focus" aria-hidden="true"></span>');
+    if (clubJourneyPointerSteps.has(stepIndex)) clubJourney.layer.insertAdjacentHTML('beforeend', `<span class="club-coachmark-pointer" aria-hidden="true"></span>${clubJourneyCursorTuner(stepIndex)}`);
     requestAnimationFrame(() => {
       positionClubJourneyUI();
       target.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
@@ -1126,7 +1147,7 @@ function closeClubJourney() {
 function startClubRedemptionJourney() {
   closeDrawer();
   const layer = document.createElement('section');
-  layer.className = 'club-prototype-layer';
+  layer.className = 'club-prototype-layer club-redemption-layer';
   layer.setAttribute('aria-label', 'Recorrido de canje en Club Olimpo');
   layer.addEventListener('click', (event) => {
     if (event.target.closest('[data-club-close]')) { closeClubJourney(); return; }

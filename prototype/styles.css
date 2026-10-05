@@ -810,7 +810,7 @@ html.is-initial-onboarding,body.is-initial-onboarding{overflow:hidden;overscroll
 .club-prototype-layer.club-orientation-layer.is-guide-active .club-guide-target{outline:none!important;box-shadow:none!important;animation:none!important}
 
 /* Contrato compartido del highlight contextual: borde, halo y pulso iguales en web y mobile. */
-.initial-onboarding-coachmark,.bonus-tour-coachmark{transition:left .52s cubic-bezier(.22,1,.36,1),top .52s cubic-bezier(.22,1,.36,1),opacity .2s ease-out}
+.initial-onboarding-coachmark,.bonus-tour-coachmark,.club-redemption-layer .club-prototype-coachmark{transition:left .52s cubic-bezier(.22,1,.36,1),top .52s cubic-bezier(.22,1,.36,1),opacity .2s ease-out}
 @keyframes shared-guide-target-pulse{
   0%,100%{outline-offset:7px}
   50%{outline-offset:9px}
@@ -863,3 +863,10 @@ html.is-initial-onboarding,body.is-initial-onboarding{overflow:hidden;overscroll
   .profile-drawer.is-onboarding-active .first-steps-card.is-onboarding-target,
   .bonus-tour-target,.topbar.is-onboarding-active .nav-link.club.is-onboarding-target{animation:none!important}
 }
+
+/* Canje: conserva el mismo marco del onboarding entre pantallas y pasos. */
+.club-redemption-layer .club-journey-focus{z-index:109;border-radius:18px}
+.club-redemption-layer.is-guide-active .club-guide-target{outline:none!important;box-shadow:none!important;animation:none!important}
+.club-redemption-layer:not(.is-journey-positioned) .club-journey-focus,
+.club-redemption-layer:not(.is-journey-positioned) .club-prototype-coachmark{visibility:hidden;transition:none}
+@media(prefers-reduced-motion:reduce){.club-redemption-layer .club-prototype-coachmark{transition:none!important}}
