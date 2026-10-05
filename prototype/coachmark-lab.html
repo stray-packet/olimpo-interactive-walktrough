@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio interno para comparar y ajustar los coach marks de Olimpo">
+  <title>Laboratorio de coach marks — Olimpo</title>
+  <link rel="stylesheet" href="coachmark-lab.css">
+</head>
+<body>
+  <header class="lab-header">
+    <a href="index.html" class="back-link">← Volver al prototipo</a>
+    <div><p class="eyebrow">Herramienta interna</p><h1>Laboratorio de coach marks</h1><p class="intro">Ajusta cada variante por separado. Copia los valores del diseño que quieras tomar como referencia.</p></div>
+    <div class="lab-legend"><span class="legend-dot"></span> objetivo resaltado <span class="legend-frame"></span> área añadida al highlight</div>
+  </header>
+  <main>
+    <section class="lab-row" aria-labelledby="web-heading">
+      <div class="row-heading"><div><p class="eyebrow">Escritorio · más de 768 px</p><h2 id="web-heading">Coach marks web</h2></div><span>4 variantes · ajustes independientes</span></div>
+      <div class="card-rail" id="web-rail"></div>
+    </section>
+    <section class="lab-row" aria-labelledby="mobile-heading">
+      <div class="row-heading"><div><p class="eyebrow">Móvil · hasta 768 px</p><h2 id="mobile-heading">Coach marks mobile</h2></div><span>4 variantes · ajustes independientes</span></div>
+      <div class="card-rail" id="mobile-rail"></div>
+    </section>
+  </main>
+  <div class="copy-toast" id="copy-toast" role="status" aria-live="polite"></div>
+  <script src="coachmark-lab.js"></script>
+</body>
+</html>

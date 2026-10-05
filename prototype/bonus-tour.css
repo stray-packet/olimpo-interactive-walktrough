@@ -30,3 +30,64 @@
   .bonus-tour-coachmark{top:90px;bottom:auto;max-height:none;overflow:visible;overscroll-behavior:contain}
   .bonus-tour-layer{overscroll-behavior:none}
 }
+
+/* Header del recorrido: mismo peso y alineación del saldo que el header principal. */
+.bonus-tour-deposit{font-weight:500}
+.bonus-tour-balance{display:inline-flex;align-items:center;gap:7px;font-weight:500}
+.bonus-tour-chevron{display:inline-block;line-height:1;transform:translateY(-3px)}
+@media(max-width:768px){
+  .bonus-tour-mobile-nav{overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth;scrollbar-width:none}
+  .bonus-tour-mobile-nav::-webkit-scrollbar{display:none}
+  .bonus-tour-mobile-nav span{flex:1 0 20%;min-width:72px}
+  .bonus-tour-mobile-nav small{font-weight:500}
+}
+
+.bonus-tour-coachmark{padding-right:19px}
+.bonus-tour-coachmark .bonus-tour-close{position:absolute;top:10px;right:10px;display:grid;place-items:center;width:30px;height:30px;padding:0;border:1px solid rgba(255,255,255,.28);border-radius:50%;background:rgba(18,18,18,.5);color:#fff;font:400 23px/26px Arial,sans-serif;cursor:pointer}
+.bonus-tour-coachmark .bonus-tour-close:hover,.bonus-tour-coachmark .bonus-tour-close:focus-visible{background:rgba(158,232,110,.2);color:#fff;outline:none}
+@media(max-width:768px){.bonus-tour-coachmark{padding-right:15px}}
+
+/* Base mobile común para coach marks, acciones y resaltado. */
+@media(max-width:768px){
+  .bonus-tour-coachmark{gap:0;padding:16px;border:1px solid rgba(158,232,110,.45);border-radius:18px;background:rgba(18,18,18,.95);box-shadow:0 18px 50px rgba(0,0,0,.4);backdrop-filter:blur(12px)}
+  .bonus-tour-coachmark>span:first-of-type{padding-right:34px;color:#9ee86e}
+  .bonus-tour-coachmark>span:nth-of-type(2){color:#d9f6c6}
+  .bonus-tour-coachmark>strong{margin-top:6px;font-size:18px;line-height:24px}
+  .bonus-tour-coachmark>p{margin-top:6px;font-size:14px;line-height:20px}
+  .bonus-tour-coachmark>span:nth-of-type(2){margin-top:14px}
+  .bonus-tour-progress{margin-top:4px}
+  .bonus-tour-controls{gap:6px;margin-top:12px}
+  .bonus-tour-controls button{min-height:36px;padding:7px 8px;border-radius:14px}
+  .bonus-tour-target{outline-offset:7px;box-shadow:0 0 0 7px rgba(158,232,110,.14),0 0 26px rgba(158,232,110,.5)!important;animation:shared-guide-target-pulse 1.7s ease-in-out infinite}
+  .bonus-tour-target:not(.bonus-tour-card-actions button):not(.bonus-tour-notice):not(.bonus-tour-term--warning){background-color:#ecf9f0!important}
+  .bonus-tour-notice.bonus-tour-target{background-color:#eaf4ff!important}
+  .bonus-tour-term--warning.bonus-tour-target{background-color:#fff8e7!important}
+  .bonus-tour-card-actions button.bonus-tour-target{background-color:#3cc666!important}
+}
+@media(prefers-reduced-motion:reduce) and (max-width:768px){.bonus-tour-target{animation:none!important}}
+
+/* Estándar de contenido y highlight para coach marks web. */
+@media(min-width:769px){
+  .bonus-tour-coachmark{gap:0;padding:16px;border:1px solid rgba(158,232,110,.45);border-radius:18px;background:rgba(18,18,18,.95);box-shadow:0 18px 50px rgba(0,0,0,.4);backdrop-filter:blur(12px)}
+  .bonus-tour-coachmark>span:first-of-type{padding-right:34px;color:#9ee86e}
+  .bonus-tour-coachmark>strong{margin-top:6px;font-size:18px;line-height:24px}
+  .bonus-tour-coachmark>p{margin-top:6px;color:#e1e4e2;font-size:14px;line-height:20px}
+  .bonus-tour-coachmark>span:nth-of-type(2){margin-top:14px;color:#d9f6c6}
+  .bonus-tour-progress{margin-top:4px}
+  .bonus-tour-controls{gap:6px;margin-top:12px}
+  .bonus-tour-controls button{min-height:36px;padding:7px 8px;border-radius:14px}
+  .bonus-tour-target{outline-offset:7px;box-shadow:0 0 0 7px rgba(158,232,110,.14),0 0 26px rgba(158,232,110,.5)!important;animation:shared-guide-target-pulse 1.7s ease-in-out infinite}
+  .bonus-tour-target:not(.bonus-tour-card-actions button):not(.bonus-tour-notice):not(.bonus-tour-term--warning){background-color:#ecf9f0!important}
+  .bonus-tour-notice.bonus-tour-target{background-color:#eaf4ff!important}
+  .bonus-tour-term--warning.bonus-tour-target{background-color:#fff8e7!important}
+  .bonus-tour-card-actions button.bonus-tour-target{background-color:#3cc666!important}
+}
+@media(prefers-reduced-motion:reduce) and (min-width:769px){.bonus-tour-target{animation:none!important}}
+
+/* El mismo marco persistente del onboarding se mueve entre los objetivos de Bonos. */
+.bonus-tour-layer .bonus-tour-focus{z-index:11;border-radius:18px}
+.bonus-tour-layer .bonus-tour-target{outline:none!important;box-shadow:none!important;animation:none!important}
+.bonus-tour-layer:not(.is-positioned) .bonus-tour-focus{visibility:hidden}
+.bonus-tour-layer:not(.is-positioned) .bonus-tour-focus,
+.bonus-tour-layer:not(.is-positioned) .bonus-tour-coachmark{transition:none}
+@media(prefers-reduced-motion:reduce){.bonus-tour-coachmark{transition:none!important}}

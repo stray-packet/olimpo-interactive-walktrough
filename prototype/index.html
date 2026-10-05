@@ -17,7 +17,7 @@
       <nav class="main-nav" aria-label="Navegación principal">
         <button class="nav-link is-active" type="button">Inicio</button>
         <button class="nav-link" type="button">Deportes</button>
-        <button class="nav-link club" type="button">⚡ Club Olimpo</button>
+        <button class="nav-link club" type="button">Club Olimpo<svg class="topbar-club-badge" width="19" height="18" viewBox="0 0 19 18" fill="none" aria-hidden="true"><rect x=".5" width="18" height="18" rx="9" fill="url(#topbarClubBadgeGradient)"/><path d="M14.345 6.802h-2.871c-.125 0-.195-.145-.118-.243l2.668-3.371c.06-.077.006-.188-.09-.188H8.396a.12.12 0 0 0-.1.058L4.555 9.52c-.045.076.01.173.1.173h2.326a.12.12 0 0 1 .145.186l-1.244 4.977c-.028.113.108.192.192.111l8.35-7.967c.075-.071.025-.198-.079-.198Z" fill="#111"/><defs><linearGradient id="topbarClubBadgeGradient" x1="2.9" y1="2.4" x2="15.5" y2="18" gradientUnits="userSpaceOnUse"><stop stop-color="#BEA571"/><stop offset=".22" stop-color="#FFE4AD"/><stop offset=".54" stop-color="#FDCE6F"/><stop offset="1" stop-color="#836724"/></linearGradient></defs></svg></button>
         <button class="nav-link" type="button">Casino</button>
         <button class="nav-link" type="button">Casino en vivo</button>
         <button class="nav-link" type="button">Virtuales</button>
@@ -32,7 +32,7 @@
       </div>
       <div class="account-actions" id="accountActions" hidden>
         <button class="deposit" type="button">Deposita</button>
-        <button class="balance" type="button">S/ 3.50⌄</button>
+        <button class="balance" type="button"><span class="balance-value">S/ 0.0</span><span class="balance-chevron" aria-hidden="true">⌄</span></button>
         <button class="avatar" id="profileTrigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="profileDrawer">
           <span>E</span><b>6</b>
         </button>
@@ -181,7 +181,7 @@
         </div>
         <nav class="profile-menu" aria-label="Opciones de cuenta">
           <button class="profile-option is-selected" type="button"><span>◉</span> Mi perfil</button>
-          <button class="profile-option discover-entry" data-action="discover" type="button"><span>✦</span> Descubre Olimpo <em>Nuevo</em></button>
+          <button class="profile-option discover-entry" data-action="discover" type="button"><span class="discover-menu-icon"><img src="assets/icons/discovery-icon.png" alt="" /></span><span>Descubre Olimpo</span><em>Nuevo</em></button>
           <button class="profile-option" type="button"><span>◈</span> Mis bonos <em>2</em></button>
           <button class="profile-option" type="button"><span>♛</span> Misiones</button>
           <button class="profile-option" type="button"><span>◷</span> Historial de transacciones</button>
@@ -195,11 +195,11 @@
     </aside>
 
     <nav class="mobile-nav" aria-label="Navegación móvil">
-      <button class="is-active" type="button"><span>⌂</span>Inicio</button>
-      <button type="button"><span>◷</span>En vivo</button>
-      <button type="button"><span>⌕</span>Explorar</button>
-      <button type="button"><span>♛</span>Misiones</button>
-      <button type="button"><span>⋯</span>Más</button>
+      <button type="button"><img src="assets/imgs/nav/nav-icono-deportes.webp" alt="" /><span>Deportes</span></button>
+      <button type="button"><img src="assets/imgs/nav/nav-icono-casino.webp" alt="" /><span>Casino</span></button>
+      <button type="button"><img src="assets/imgs/nav/nav-icono-casino-live.webp" alt="" /><span>Casino en vivo</span></button>
+      <button type="button"><img src="assets/imgs/nav/nav-icono-virtuales.webp" alt="" /><span>Virtuales</span></button>
+      <button class="club" type="button"><img src="assets/imgs/nav/nav-icono-club-olimpo.webp" alt="" /><span>Club Olimpo</span></button>
     </nav>
     <script src="app.js"></script>
     <script src="bonus-tour.js"></script>
