@@ -6,7 +6,7 @@ const bonusTourSteps = [
   { target: '[data-bonus-sections]', title: 'Mira dónde aplica', body: 'Cada bono indica las secciones válidas. Este ejemplo aplica a Apuestas deportivas; otros pueden ser para Casino, Casino en vivo o Virtuales.' },
   { target: '[data-bonus-conditions]', title: 'Lee las condiciones', body: 'Busca restricciones y límites propios del bono, como su conversión máxima. El porcentaje de este ejemplo no es una regla para todos los bonos.' },
   { target: '[data-bonus-requirements]', title: 'Comprueba los requisitos', body: 'Revisa lo necesario para usarlo, como una cuota mínima o los juegos y eventos permitidos.' },
-  { target: '[data-bonus-activate]', title: 'Activa el bono', body: 'Cuando conozcas las reglas, pulsa «Activar». Esto solo cambia el estado del bono de prueba.', action: true },
+  { target: '[data-bonus-activate]', title: 'Activa el bono', body: 'Cuando conozcas las reglas, pulsa «Activar». Esto solo cambia el estado del bono de prueba.', action: true, lockedNextLabel: 'Presiona Activar' },
   { target: '[data-bonus-one-active]', title: 'Uno activo a la vez', body: 'Si el bono no es acumulable, debes terminar o resolver el activo antes de activar otro.' },
   { target: '[data-bonus-withdrawal]', title: 'Antes de retirar', body: 'Si solicitas un retiro con requisitos pendientes, el bono y sus beneficios pueden cancelarse. Revisa siempre sus condiciones.' }
 ];
@@ -56,7 +56,10 @@ function renderBonusTourStep() {
   const target = bonusTour.layer.querySelector(step.target);
   target.classList.add('bonus-tour-target');
   const coachmark = bonusTour.layer.querySelector('.bonus-tour-coachmark');
-  coachmark.innerHTML = `<span>Paso ${bonusTour.step + 1} de ${bonusTourSteps.length}</span><strong>${step.title}</strong><p>${step.body}</p><div class="bonus-tour-progress">${bonusTourSteps.map((_, index) => `<i class="${index <= bonusTour.step ? 'is-filled' : ''}"></i>`).join('')}</div><div class="bonus-tour-controls"><button data-bonus-prev type="button" ${bonusTour.step === 0 ? 'disabled' : ''}>Anterior</button>${step.action ? '' : `<button data-bonus-next type="button">${bonusTour.step === bonusTourSteps.length - 1 ? 'Finalizar recorrido' : 'Continuar'}</button>`}</div>`;
+  const nextButton = step.action
+    ? (step.lockedNextLabel ? `<button type="button" disabled>${step.lockedNextLabel}</button>` : '')
+    : `<button data-bonus-next type="button">${bonusTour.step === bonusTourSteps.length - 1 ? 'Finalizar recorrido' : 'Continuar'}</button>`;
+  coachmark.innerHTML = `<span>Conoce tus bonos</span><strong>${step.title}</strong><p>${step.body}</p><span>Paso ${bonusTour.step + 1} de ${bonusTourSteps.length}</span><div class="bonus-tour-progress">${bonusTourSteps.map((_, index) => `<i class="${index <= bonusTour.step ? 'is-filled' : ''}"></i>`).join('')}</div><div class="bonus-tour-controls"><button data-bonus-prev type="button" ${bonusTour.step === 0 ? 'disabled' : ''}>Anterior</button>${nextButton}</div>`;
   requestAnimationFrame(() => { positionBonusTourStep(); if (step.action) target.focus({ preventScroll: true }); });
 }
 
