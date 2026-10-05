@@ -703,7 +703,7 @@ function startDepositGuide() {
   depositTrigger.focus({ preventScroll: true });
 }
 
-const clubJourney = { layer: null, step: 0, selectedTicket: 1, timer: null };
+const clubJourney = { layer: null, step: 0, selectedTicket: 1, timer: null, cursorTunes: {} };
 const clubPoints = '5,000';
 
 function clubHeader(active = '', mode = 'store') {
@@ -734,6 +734,13 @@ const clubRedemptionSteps = [
   { screen: 'terms', target: '.club-detail-redeem-hotspot', title: 'Confirma el canje', body: 'Cuando termines de revisar las condiciones, pulsa «Canjear» sobre la imagen del bono elegido.' },
   { screen: 'success', target: '.club-success-modal', title: '¡Bono canjeado!', body: 'Este modal confirma el canje simulado. Puedes ir a «Mis bonos» o continuar explorando Club Olimpo.' }
 ];
+const clubJourneyPointerSteps = new Set([1, 2, 8]);
+const clubJourneyRequiredActions = { 1: 'Pulsa «Quiero canjear»', 2: 'Pulsa «Bonos»', 3: 'Pulsa «Canjear»', 8: 'Pulsa «Canjear»' };
+
+function clubJourneyCursorTuner(stepIndex) {
+  const tune = clubJourney.cursorTunes[stepIndex] || { x: 0, y: 0, rotation: 0 };
+  return `<section class="club-cursor-tuner club-journey-cursor-tuner" aria-label="Ajustar cursor del paso ${stepIndex + 1}"><strong>Ajustar cursor</strong><label>Eje X <output data-club-journey-cursor-value="x">${tune.x} px</output><input data-club-journey-cursor="x" type="range" min="-120" max="120" value="${tune.x}"></label><label>Eje Y <output data-club-journey-cursor-value="y">${tune.y} px</output><input data-club-journey-cursor="y" type="range" min="-120" max="120" value="${tune.y}"></label><label>Rotación <output data-club-journey-cursor-value="rotation">${tune.rotation}°</output><input data-club-journey-cursor="rotation" type="range" min="-180" max="180" value="${tune.rotation}"></label></section>`;
+}
 
 function clubCoachmark(stepIndex) {
   const step = clubRedemptionSteps[stepIndex];
@@ -748,7 +755,8 @@ function clubCoachmark(stepIndex) {
   const [title, body] = clubJourney.selectedTicket === 1 || !generalCopy[stepIndex]
     ? [step.title, step.body]
     : generalCopy[stepIndex];
-  return `<aside class="club-prototype-coachmark" id="clubJourneyCoachmark" role="status"><button class="club-coachmark-close" data-club-close type="button" aria-label="Cerrar guía">×</button><span>Canjea tu bono</span><strong>${title}</strong><p>${body}</p><span>Paso ${current} de ${total}</span>${tourProgressBar(current, total)}<div class="club-orientation-controls"><button data-club-journey-prev type="button" ${stepIndex === 0 ? 'disabled' : ''}>Anterior</button><button data-club-journey-next type="button">${stepIndex === total - 1 ? 'Finalizar' : 'Siguiente'}</button></div></aside>`;
+  const requiredAction = clubJourneyRequiredActions[stepIndex];
+  return `<aside class="club-prototype-coachmark" id="clubJourneyCoachmark" role="status"><button class="club-coachmark-close" data-club-close type="button" aria-label="Cerrar guía">×</button><span>Canjea tu bono</span><strong>${title}</strong><p>${body}</p><span>Paso ${current} de ${total}</span>${tourProgressBar(current, total)}<div class="club-orientation-controls"><button data-club-journey-prev type="button" ${stepIndex === 0 ? 'disabled' : ''}>Anterior</button><button data-club-journey-next type="button" ${requiredAction ? 'disabled' : ''}>${requiredAction || (stepIndex === total - 1 ? 'Finalizar' : 'Siguiente')}</button></div></aside>`;
 }
 
 function positionClubJourneyCoachmark(target, coachmark) {
@@ -767,7 +775,7 @@ function positionClubJourneyCoachmark(target, coachmark) {
   coachmark.style.bottom = 'auto';
 }
 
-function positionClubGuidePointer(target, coachmark, pointer) {
+function positionClubGuidePointer(target, coachmark, pointer, stepIndex) {
   if (!target || !pointer) return;
   const rect = target.getBoundingClientRect();
   const card = coachmark?.getBoundingClientRect();
@@ -791,9 +799,16 @@ function positionClubGuidePointer(target, coachmark, pointer) {
     top = rect.top + rect.height / 2 - pointerSize / 2;
     rotation = '180deg';
   }
-  pointer.style.left = `${Math.max(4, Math.min(window.innerWidth - pointerSize - 4, left))}px`;
-  pointer.style.top = `${Math.max(4, Math.min(window.innerHeight - pointerSize - 4, top))}px`;
-  pointer.style.setProperty('--club-pointer-rotation', rotation);
+  let tune = clubJourney.cursorTunes[stepIndex];
+  if (!tune) {
+    tune = clubJourney.cursorTunes[stepIndex] = { x: 0, y: 0, rotation: Number.parseInt(rotation, 10) };
+    const rotationControl = clubJourney.layer.querySelector('[data-club-journey-cursor="rotation"]');
+    rotationControl.value = String(tune.rotation);
+    clubJourney.layer.querySelector('[data-club-journey-cursor-value="rotation"]').textContent = `${tune.rotation}°`;
+  }
+  pointer.style.left = `${Math.max(4, Math.min(window.innerWidth - pointerSize - 4, left + tune.x))}px`;
+  pointer.style.top = `${Math.max(4, Math.min(window.innerHeight - pointerSize - 4, top + tune.y))}px`;
+  pointer.style.setProperty('--club-pointer-rotation', `${tune.rotation}deg`);
 }
 
 function positionClubOrientationUI() {
@@ -818,10 +833,10 @@ function positionClubJourneyUI() {
   const target = layer.querySelector('.club-guide-target');
   const coachmark = layer.querySelector('.club-prototype-coachmark');
   positionClubJourneyCoachmark(target, coachmark);
-  positionClubGuidePointer(target, coachmark, layer.querySelector('.club-coachmark-pointer'));
+  positionClubGuidePointer(target, coachmark, layer.querySelector('.club-coachmark-pointer'), clubJourney.step);
 }
 
-const clubOrientation = { active: false, overlay: null, focus: null, pointer: null, coachmark: null, layer: null, step: 0, timer: null, cursorTune: { x: 0, y: 0, rotation: -90 } };
+const clubOrientation = { active: false, overlay: null, focus: null, pointer: null, coachmark: null, layer: null, step: 0, timer: null, cursorTune: { x: -58, y: -9, rotation: 59 } };
 const clubNavTrigger = document.querySelector('.topbar .nav-link.club');
 const clubMobileNavTrigger = document.querySelector('.mobile-nav button.club');
 
@@ -985,7 +1000,7 @@ function startClubOrientationGuide() {
   overlay.className = 'initial-onboarding-overlay deposit-guide-overlay';
   overlay.dataset.stage = 'club-orientation';
   const mobile = window.matchMedia('(max-width: 768px)').matches;
-  clubOrientation.cursorTune = { x: 0, y: 0, rotation: mobile ? 90 : -90 };
+  clubOrientation.cursorTune = mobile ? { x: 0, y: 0, rotation: 90 } : { x: -58, y: -9, rotation: 59 };
   overlay.innerHTML = '<span class="initial-onboarding-scrim" aria-hidden="true"></span><span class="initial-onboarding-focus" aria-hidden="true"></span><span class="initial-onboarding-pointer" aria-hidden="true"><svg viewBox="0 0 28 34" fill="none"><path d="M5.5 2.5 23.5 19l-8 1.6-3.4 8.9L5.5 2.5Z" fill="#9EE86E" stroke="#0D2B16" stroke-width="2" stroke-linejoin="round"/></svg></span><aside class="initial-onboarding-coachmark" id="clubOrientationCoachmark" role="dialog" aria-live="polite" aria-label="Guía de Club Olimpo"><button class="initial-onboarding-close" type="button" aria-label="Cerrar guía">×</button><span class="initial-onboarding-eyebrow">Conoce Club Olimpo</span><strong>Entra a Club Olimpo</strong><p>Pulsa «Club Olimpo» en el menú ' + (mobile ? 'inferior' : 'superior') + ' para ver dónde encontrarás tus puntos y recompensas.</p><span class="initial-onboarding-progress">Paso 1 de ' + (clubOrientationSteps.length + 1) + '</span>' + tourProgressBar(1, clubOrientationSteps.length + 1) + '</aside>' + clubCursorTuner();
   document.body.append(overlay);
   clubOrientation.overlay = overlay;
@@ -1077,7 +1092,7 @@ function renderClubJourney(stepIndex = clubJourney.step) {
     target.setAttribute('aria-describedby', 'clubJourneyCoachmark');
     clubJourney.layer.classList.add('is-guide-active');
     clubJourney.layer.dataset.clubGuideState = 'guided';
-    clubJourney.layer.insertAdjacentHTML('beforeend', `${clubCoachmark(stepIndex)}<span class="club-coachmark-pointer" aria-hidden="true"></span>`);
+    clubJourney.layer.insertAdjacentHTML('beforeend', `${clubCoachmark(stepIndex)}${clubJourneyPointerSteps.has(stepIndex) ? `<span class="club-coachmark-pointer" aria-hidden="true"></span>${clubJourneyCursorTuner(stepIndex)}` : ''}`);
     requestAnimationFrame(() => {
       positionClubJourneyUI();
       target.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
@@ -1089,7 +1104,8 @@ function renderClubJourney(stepIndex = clubJourney.step) {
   }, reduceMotion ? 0 : 420);
 }
 
-function advanceClubJourney(delta) {
+function advanceClubJourney(delta, { viaTarget = false } = {}) {
+  if (delta > 0 && clubJourneyRequiredActions[clubJourney.step] && !viaTarget) return;
   const next = clubJourney.step + delta;
   if (next < 0) return;
   if (next >= clubRedemptionSteps.length) { closeClubJourney(); return; }
@@ -1101,6 +1117,7 @@ function closeClubJourney() {
   clubJourney.layer?.remove();
   clubJourney.layer = null;
   clubJourney.step = 0;
+  clubJourney.cursorTunes = {};
   profileView();
   openDrawer();
   discoveryView({ animate: false });
@@ -1124,13 +1141,23 @@ function startClubRedemptionJourney() {
     const next = event.target.closest('[data-club-next]')?.dataset.clubNext;
     if ((next === 'portal' && clubJourney.step === 1) ||
         (next === 'marketplace' && clubJourney.step === 2) ||
-        (next === 'success' && clubJourney.step === 8)) advanceClubJourney(1);
+        (next === 'success' && clubJourney.step === 8)) advanceClubJourney(1, { viaTarget: true });
+  });
+  layer.addEventListener('input', (event) => {
+    const control = event.target.closest('[data-club-journey-cursor]');
+    if (!control) return;
+    const key = control.dataset.clubJourneyCursor;
+    const tune = clubJourney.cursorTunes[clubJourney.step] ||= { x: 0, y: 0, rotation: 0 };
+    tune[key] = Number(control.value);
+    layer.querySelector(`[data-club-journey-cursor-value="${key}"]`).textContent = `${control.value}${key === 'rotation' ? '°' : ' px'}`;
+    positionClubJourneyUI();
   });
   layer.addEventListener('scroll', positionClubJourneyUI, { passive: true, capture: true });
   document.body.append(layer);
   clubJourney.layer = layer;
   clubJourney.step = 0;
   clubJourney.selectedTicket = 1;
+  clubJourney.cursorTunes = {};
   renderClubJourney(0);
 }
 
