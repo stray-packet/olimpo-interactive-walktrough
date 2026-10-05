@@ -114,6 +114,8 @@ Siguen siendo específicas de cada contexto la ubicación del coach mark, los pu
 
 ## Corrección y validación de visibilidad — 2026-10-05
 
+Corrección adicional del primer paso: iniciar la guía con la página previamente desplazada dejaba el avatar fuera del viewport al bloquear el scroll. Se reprodujo con WebKit: tras desplazar 500 px, el avatar quedaba en `top: -488 px`. Ahora la guía vuelve al inicio antes del bloqueo y fija el encabezado al área de `visualViewport`, actualizándolo cuando cambia su offset. Validación: ocho recorridos táctiles completos (Chromium/WebKit, 320×480 y 390×844, área visible normal y desplazada), pulsando avatar, entrada Descubre Olimpo y Entendido. Todos pasaron y el objetivo inicial quedó visible y pulsable.
+
 Los coach marks de onboarding, Bonos, Club y depósito se limitan al área de `visualViewport`, con margen de 12 px y medición del alto después de aplicar el ancho. Si el contenido supera el área visible, el coach mark permite desplazamiento interno. Bonos mide su contenido con el ancho mobile antes de posicionar el objetivo. Los objetivos móviles de Club/depósito se desplazan por programa cuando hace falta espacio para el coach mark.
 
 Durante el onboarding inicial se bloquea el desplazamiento manual del panel y la interacción con elementos ajenos al objetivo y a los controles del coach mark. El foco con Tab permanece en esos controles. Los paneles temporales de ajuste del cursor requieren `data-guide-debug` en el body, para que no cubran objetivos ni botones. La entrada Club en anchos de 769–1150 px muestra su acceso mientras la guía lo requiere.

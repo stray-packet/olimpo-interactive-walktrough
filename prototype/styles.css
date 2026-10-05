@@ -874,6 +874,14 @@ html.is-initial-onboarding,body.is-initial-onboarding{overflow:hidden;overscroll
 /* La guía inicial permite únicamente el objetivo y sus controles; el scroll lo posiciona la guía. */
 html.is-initial-onboarding .profile-drawer .account-view,
 html.is-initial-onboarding .profile-drawer .discovery-scroll{overflow:hidden!important;overscroll-behavior:none;touch-action:none}
+/* El primer objetivo debe permanecer dentro del área visible aunque la página venía desplazada. */
+html.is-initial-onboarding .topbar.is-onboarding-active{
+  position:fixed;top:var(--initial-guide-top,0px);left:var(--initial-guide-left,0px);width:var(--initial-guide-width,100%);
+  box-sizing:border-box;
+}
+html.is-initial-onboarding .topbar.is-onboarding-active .brand{min-width:0}
+html.is-initial-onboarding .topbar.is-onboarding-active .account-actions{min-width:0;flex-shrink:0}
+html.is-initial-onboarding .topbar.is-onboarding-active .avatar{flex-shrink:0}
 .initial-onboarding-coachmark,.bonus-tour-coachmark,.club-prototype-coachmark,.deposit-flow-coachmark{overscroll-behavior:contain;touch-action:pan-y}
 /* Los ajustes temporales del cursor no deben cubrir objetivos o navegación de la guía. */
 .club-cursor-tuner{display:none}

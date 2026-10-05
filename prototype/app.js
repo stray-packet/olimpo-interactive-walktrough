@@ -81,6 +81,12 @@ function setOnboardingTarget(target, scope = '') {
 
 function positionInitialOnboarding() {
   if (!initialOnboarding.active || !initialOnboarding.target) return;
+  if (initialOnboarding.stage === 'profile') {
+    const bounds = guideVisibleBounds();
+    topbar.style.setProperty('--initial-guide-top', `${bounds.top}px`);
+    topbar.style.setProperty('--initial-guide-left', `${bounds.left}px`);
+    topbar.style.setProperty('--initial-guide-width', `${bounds.width}px`);
+  }
   if (initialOnboarding.stage === 'discover') {
     const host = initialOnboarding.target.closest('.account-view');
     if (host) {
@@ -134,6 +140,7 @@ function setInitialOnboardingCopy({ eyebrow, title, body, progress, summary = fa
 
 function startInitialOnboarding() {
   if (initialOnboarding.active) return;
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   initialOnboarding.active = true;
   initialOnboarding.stage = 'profile';
   document.documentElement.classList.add('is-initial-onboarding');
@@ -507,7 +514,10 @@ window.visualViewport?.addEventListener('resize', () => {
   if (typeof positionBonusTourStep === 'function') positionBonusTourStep();
   fitVisibleGuideCoachmarks();
 });
-window.visualViewport?.addEventListener('scroll', fitVisibleGuideCoachmarks);
+window.visualViewport?.addEventListener('scroll', () => {
+  positionInitialOnboarding();
+  fitVisibleGuideCoachmarks();
+});
 document.addEventListener('wheel', event => {
   if (initialOnboarding.active && !event.target.closest('.initial-onboarding-coachmark')) event.preventDefault();
 }, { passive: false, capture: true });
