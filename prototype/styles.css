@@ -182,7 +182,7 @@ body.has-open-drawer{overflow:hidden}
 .profile-drawer .guide-modal-close:hover{background:rgba(158,232,110,.2)}
 .profile-drawer .guide-modal-image{height:142px;margin:0 0 18px;border-radius:12px;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 45%,rgba(158,232,110,.24),rgba(13,43,22,.3) 46%,rgba(18,18,18,.2));border:1px solid rgba(158,232,110,.16)}
 .profile-drawer .guide-modal-image.has-video{background:transparent;border:0;border-radius:0}
-.profile-drawer .guide-modal-image.has-video video{display:block;width:100%;height:100%;object-fit:contain}
+.profile-drawer .guide-modal-image.has-video video{display:block;width:100%;height:100%;object-fit:cover;border-radius:12px}
 .profile-drawer .guide-modal-image span{position:relative;color:#9ee86e;font-size:58px;line-height:1}
 .profile-drawer .guide-modal-image.kyc span{color:#d9f6c6}.profile-drawer .guide-modal-image.sports span{color:#c79bff}
 .profile-drawer .kyc-document-visual{position:relative;width:168px;height:94px}.profile-drawer .kyc-document-visual span{position:absolute;display:grid;place-items:center;width:104px;height:66px;border:1px solid rgba(217,246,198,.55);border-radius:10px;background:linear-gradient(145deg,#d9f6c6,#9ee86e);color:#0f1f05;font:700 16px/1 Olimpo,Arial,sans-serif;box-shadow:0 12px 24px rgba(0,0,0,.22)}.profile-drawer .kyc-document-visual span:first-child{left:0;bottom:0;transform:rotate(-7deg)}.profile-drawer .kyc-document-visual span:last-child{right:0;top:0;transform:rotate(7deg)}
