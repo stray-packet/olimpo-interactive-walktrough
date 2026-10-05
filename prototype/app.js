@@ -81,6 +81,14 @@ function setOnboardingTarget(target, scope = '') {
 
 function positionInitialOnboarding() {
   if (!initialOnboarding.active || !initialOnboarding.target) return;
+  if (initialOnboarding.stage === 'discover') {
+    const host = initialOnboarding.target.closest('.account-view');
+    if (host) {
+      const bounds = guideVisibleBounds();
+      const desiredTop = bounds.top + Math.max(24, (bounds.height - 320) / 2);
+      host.scrollTop += initialOnboarding.target.getBoundingClientRect().top - desiredTop;
+    }
+  }
   const rect = initialOnboarding.target.getBoundingClientRect();
   const mobile = window.matchMedia('(max-width: 768px)').matches;
   const padding = mobile ? 12 : 18;
@@ -112,6 +120,7 @@ function positionInitialOnboarding() {
     : Math.max(padding, rect.top - coachmarkHeight - 18);
   const boundedTop = Math.max(padding, Math.min(top, window.innerHeight - coachmarkHeight - padding));
   initialOnboarding.coachmark.style.setProperty('top', `${boundedTop}px`, 'important');
+  fitGuideCoachmark(initialOnboarding.coachmark);
 }
 
 function setInitialOnboardingCopy({ eyebrow, title, body, progress, summary = false }) {
@@ -455,23 +464,85 @@ function startKycMock() {
 
 const depositGuide = { active: false, overlay: null, focus: null, pointer: null, coachmark: null, layer: null, screen: 'entry', amountStage: 'entry', amount: '', selectedMethod: '', amountTimer: null, confirmReady: false };
 
+function guideVisibleBounds() {
+  const viewport = window.visualViewport;
+  const top = viewport?.offsetTop || 0;
+  const left = viewport?.offsetLeft || 0;
+  const height = viewport?.height || window.innerHeight;
+  const width = viewport?.width || window.innerWidth;
+  return { top, left, height, width, bottom: top + height, right: left + width };
+}
+
+function fitGuideCoachmark(card) {
+  if (!card) return;
+  const bounds = guideVisibleBounds();
+  const set = (name, value) => {
+    if (card.style.getPropertyValue(name) !== value || card.style.getPropertyPriority(name) !== 'important') card.style.setProperty(name, value, 'important');
+  };
+  set('max-width', `${Math.max(0, bounds.width - 24)}px`);
+  set('max-height', `${Math.max(0, bounds.height - 24)}px`);
+  set('overflow-y', 'auto');
+  set('bottom', 'auto');
+  const top = parseFloat(card.style.top) || bounds.top + 12;
+  const left = parseFloat(card.style.left) || bounds.left + 12;
+  set('top', `${Math.max(bounds.top + 12, Math.min(top, bounds.bottom - card.offsetHeight - 12))}px`);
+  set('left', `${Math.max(bounds.left + 12, Math.min(left, bounds.right - card.offsetWidth - 12))}px`);
+}
+
+const guideCoachmarkSelector = '.initial-onboarding-coachmark,.bonus-tour-coachmark,.club-prototype-coachmark,.deposit-flow-coachmark';
+let guideFitFrame;
+function fitVisibleGuideCoachmarks() {
+  cancelAnimationFrame(guideFitFrame);
+  guideFitFrame = requestAnimationFrame(() => document.querySelectorAll(guideCoachmarkSelector).forEach(fitGuideCoachmark));
+}
+new MutationObserver(records => {
+  if (records.some(record => record.type === 'childList' || record.target.matches?.(guideCoachmarkSelector))) fitVisibleGuideCoachmarks();
+}).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['style'] });
+window.visualViewport?.addEventListener('resize', () => {
+  positionInitialOnboarding();
+  positionDepositGuide();
+  positionClubOrientationEntry();
+  positionClubOrientationUI();
+  positionClubJourneyUI();
+  if (typeof positionBonusTourStep === 'function') positionBonusTourStep();
+  fitVisibleGuideCoachmarks();
+});
+window.visualViewport?.addEventListener('scroll', fitVisibleGuideCoachmarks);
+document.addEventListener('wheel', event => {
+  if (initialOnboarding.active && !event.target.closest('.initial-onboarding-coachmark')) event.preventDefault();
+}, { passive: false, capture: true });
+document.addEventListener('touchmove', event => {
+  if (initialOnboarding.active && !event.target.closest('.initial-onboarding-coachmark')) event.preventDefault();
+}, { passive: false, capture: true });
+
 function positionAnchoredCoachmark(target, coachmark, { gap = 18, padding = 18 } = {}) {
   if (!target || !coachmark) return;
   const mobile = window.matchMedia('(max-width: 768px)').matches;
-  const rect = target.getBoundingClientRect();
+  let rect = target.getBoundingClientRect();
   if (mobile) {
-    const coachmarkHeight = coachmark.offsetHeight || 150;
     const readingTerms = target.closest('.club-prototype-layer')?.dataset.clubScreen === 'terms';
     coachmark.style.left = '12px';
     coachmark.style.right = '12px';
     coachmark.style.width = 'auto';
+    fitGuideCoachmark(coachmark);
+    const coachmarkHeight = coachmark.offsetHeight;
+    const bounds = guideVisibleBounds();
+    const minTop = bounds.top + (readingTerms ? 70 : 62);
+    const maxTop = bounds.bottom - coachmarkHeight - 12;
+    if (rect.bottom + gap > maxTop && rect.top - coachmarkHeight - gap < minTop) {
+      const host = target.closest('.club-prototype-layer,.deposit-flow-layer,.bonus-tour-layer');
+      if (host) {
+        host.style.paddingBottom = `${coachmarkHeight + 40 + Math.max(0, window.innerHeight - bounds.height)}px`;
+        host.scrollTop += rect.bottom + gap - maxTop;
+        rect = target.getBoundingClientRect();
+      }
+    }
     const topBelow = rect.bottom + gap;
     const topAbove = rect.top - coachmarkHeight - gap;
-    const minTop = readingTerms ? 70 : 62;
-    const maxTop = window.innerHeight - coachmarkHeight - 72;
     const top = topBelow <= maxTop ? topBelow : topAbove >= minTop ? topAbove : Math.max(minTop, maxTop);
     coachmark.style.top = `${Math.max(minTop, top)}px`;
     coachmark.style.bottom = 'auto';
+    fitGuideCoachmark(coachmark);
     return;
   }
   const width = Math.min(340, window.innerWidth - padding * 2);
@@ -1261,7 +1332,28 @@ document.addEventListener('pointerdown', (event) => {
   if (initialOnboarding.stage !== 'summary') return;
   const clickedCoachmark = event.target.closest('.initial-onboarding-coachmark');
   const clickedTarget = event.target.closest('.first-steps-card');
-  if (!clickedCoachmark && !clickedTarget) finishInitialOnboarding();
+  if (!clickedCoachmark && !clickedTarget) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }
+}, true);
+
+document.addEventListener('click', event => {
+  if (!initialOnboarding.active) return;
+  if (event.target.closest('.initial-onboarding-coachmark') || initialOnboarding.target?.contains(event.target)) return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+}, true);
+
+document.addEventListener('keydown', event => {
+  if (!initialOnboarding.active || event.key !== 'Tab') return;
+  const controls = [...initialOnboarding.coachmark.querySelectorAll('button:not(:disabled)')];
+  if (initialOnboarding.target?.matches('button:not(:disabled),a,input')) controls.unshift(initialOnboarding.target);
+  if (!controls.length) return;
+  const current = controls.indexOf(document.activeElement);
+  const next = event.shiftKey ? (current <= 0 ? controls.length - 1 : current - 1) : (current + 1) % controls.length;
+  event.preventDefault();
+  controls[next].focus({ preventScroll: true });
 }, true);
 
 drawerContent.addEventListener('click', (event) => {

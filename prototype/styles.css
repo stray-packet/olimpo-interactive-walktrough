@@ -738,7 +738,7 @@ html.is-initial-onboarding,body.is-initial-onboarding{overflow:hidden;overscroll
 .club-cursor-tuner output{color:#d9f6c6;font-variant-numeric:tabular-nums}
 .club-cursor-tuner input{grid-column:1/-1;width:100%;margin:0;accent-color:#9ee86e;cursor:pointer;touch-action:auto}
 @media(max-width:768px){.club-cursor-tuner{top:72px;right:12px;bottom:auto;width:210px}}
-.club-journey-cursor-tuner{z-index:113}
+.club-journey-cursor-tuner{z-index:108}
 @media(prefers-reduced-motion:reduce){.club-orientation-layer .club-orientation-focus,.club-orientation-layer .club-prototype-coachmark{transition:none}}
 
 /* Base mobile común para el contenido y el highlight de todos los coach marks. */
@@ -870,3 +870,15 @@ html.is-initial-onboarding,body.is-initial-onboarding{overflow:hidden;overscroll
 .club-redemption-layer:not(.is-journey-positioned) .club-journey-focus,
 .club-redemption-layer:not(.is-journey-positioned) .club-prototype-coachmark{visibility:hidden;transition:none}
 @media(prefers-reduced-motion:reduce){.club-redemption-layer .club-prototype-coachmark{transition:none!important}}
+
+/* La guía inicial permite únicamente el objetivo y sus controles; el scroll lo posiciona la guía. */
+html.is-initial-onboarding .profile-drawer .account-view,
+html.is-initial-onboarding .profile-drawer .discovery-scroll{overflow:hidden!important;overscroll-behavior:none;touch-action:none}
+.initial-onboarding-coachmark,.bonus-tour-coachmark,.club-prototype-coachmark,.deposit-flow-coachmark{overscroll-behavior:contain;touch-action:pan-y}
+/* Los ajustes temporales del cursor no deben cubrir objetivos o navegación de la guía. */
+.club-cursor-tuner{display:none}
+body[data-guide-debug] .club-cursor-tuner{display:grid}
+@media(min-width:769px) and (max-width:1150px){
+  .topbar.is-onboarding-active .main-nav:has(.club.is-onboarding-target){display:flex}
+  .topbar.is-onboarding-active .main-nav:has(.club.is-onboarding-target) .nav-link:not(.club){display:none}
+}

@@ -45,20 +45,23 @@ function positionBonusTourStep() {
   if (!target || !coachmark) return;
   const rect = target.getBoundingClientRect();
   if (window.matchMedia('(max-width: 768px)').matches) {
-    const coachmarkHeight = coachmark.offsetHeight || 170;
     coachmark.style.left = '12px';
     coachmark.style.right = '12px';
     coachmark.style.width = 'auto';
-    const desiredTargetTop = Math.max(92, Math.min(rect.top, window.innerHeight - rect.height - coachmarkHeight - 96));
+    fitGuideCoachmark(coachmark);
+    const coachmarkHeight = coachmark.offsetHeight;
+    const bounds = guideVisibleBounds();
+    const desiredTargetTop = Math.max(bounds.top + 76, Math.min(rect.top, bounds.bottom - rect.height - coachmarkHeight - 36));
     bonusTour.layer.scrollTop += rect.top - desiredTargetTop;
     requestAnimationFrame(() => {
       const adjustedRect = target.getBoundingClientRect();
       const below = adjustedRect.bottom + 12;
       const above = adjustedRect.top - coachmarkHeight - 12;
-      const maxTop = window.innerHeight - coachmarkHeight - 76;
+      const maxTop = bounds.bottom - coachmarkHeight - 12;
       const top = below <= maxTop ? below : above >= 64 ? above : Math.max(64, maxTop);
       coachmark.style.top = `${top}px`;
       coachmark.style.bottom = 'auto';
+      fitGuideCoachmark(coachmark);
       positionBonusTourFocus();
       requestAnimationFrame(() => bonusTour.layer?.classList.add('is-positioned'));
     });
