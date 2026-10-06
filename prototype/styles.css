@@ -871,6 +871,7 @@ html.is-initial-onboarding,body.is-initial-onboarding{overflow:hidden;overscroll
 .club-redemption-layer:not(.is-journey-positioned) .club-prototype-coachmark{visibility:hidden;transition:none}
 @media(prefers-reduced-motion:reduce){.club-redemption-layer .club-prototype-coachmark{transition:none!important}}
 
+
 /* La guía inicial permite únicamente el objetivo y sus controles; el scroll lo posiciona la guía. */
 html.is-initial-onboarding .profile-drawer .account-view,
 html.is-initial-onboarding .profile-drawer .discovery-scroll{overflow:hidden!important;overscroll-behavior:none;touch-action:none}
@@ -891,6 +892,9 @@ body[data-guide-debug] .club-cursor-tuner{display:grid}
 .initial-onboarding-overlay[data-stage="summary"] .initial-onboarding-coachmark>strong{margin-top:0}
 .initial-onboarding-overlay[data-stage="summary"] .initial-onboarding-coachmark>strong{padding-right:34px}
 .bonus-entry-overlay .bonus-tour-coachmark{z-index:67}
+.club-orientation-layer .club-prototype-coachmark{background:#121212;filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;opacity:1;transform:none}
+.initial-onboarding-countdown{height:4px;margin-top:14px;border-radius:4px;overflow:hidden;background:rgba(158,232,110,.22)}
+.initial-onboarding-countdown i{display:block;width:0;height:100%;background:#9ee86e;border-radius:inherit}
 .club-level-timeline{width:100%;overflow:hidden}
 @media(max-width:768px){
   .club-level-timeline-content{width:552px}
@@ -966,4 +970,15 @@ body:has(.bonus-entry-overlay) .profile-drawer .account-view{overflow:hidden;tou
 @media(min-width:769px) and (max-width:1150px){
   .topbar.is-onboarding-active .main-nav:has(.club.is-onboarding-target){display:flex}
   .topbar.is-onboarding-active .main-nav:has(.club.is-onboarding-target) .nav-link:not(.club){display:none}
+}
+
+.club-redemption-layer[data-club-screen="terms"] .club-terms-layer{overflow:auto;align-content:start;overscroll-behavior:contain;touch-action:pan-y}
+.club-redemption-layer[data-club-screen="terms"] .club-ticket-detail--image{height:auto;min-height:0;background:transparent;border-radius:0}
+.club-redemption-layer[data-club-screen="terms"] .club-terms-image-layout{display:block;padding:0;gap:0;height:auto;max-height:none;overflow:visible;background:transparent;border-radius:0;box-shadow:none}
+.club-terms-image-layout picture,.club-terms-image-layout picture img{display:block;width:100%;height:auto;border-radius:0}
+.club-redemption-layer[data-club-screen="terms"] .club-terms-image-layout .club-detail-redeem-hotspot.club-guide-target{left:3.89%;top:65.92%;bottom:auto;right:auto;width:29.64%;height:10.23%;background:transparent!important;outline:none!important;box-shadow:none!important}
+.club-terms-image-close{position:absolute;top:5.5%;left:94.3%;width:2.5%;height:5.5%;padding:0;border:0;background:transparent;cursor:pointer}
+@media(max-width:768px){
+  .club-redemption-layer[data-club-screen="terms"] .club-terms-image-layout .club-detail-redeem-hotspot.club-guide-target{left:8.72%;top:69.7%;width:82.56%;height:5.89%}
+  .club-terms-image-close{display:none}
 }

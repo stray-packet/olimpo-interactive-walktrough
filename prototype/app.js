@@ -169,13 +169,27 @@ function showInitialOnboardingSummary() {
   const firstSteps = drawerContent.querySelector('.first-steps-card');
   setInitialOnboardingCopy({ title: 'Tu bienvenida empieza aquí', body: 'Completa los 4 tutoriales y recibe un bono de S/50.', summary: true });
   setOnboardingTarget(firstSteps, 'discovery');
+  initialOnboarding.coachmark.insertAdjacentHTML('beforeend', '<div class="initial-onboarding-countdown" role="progressbar" aria-label="La bienvenida se cerrará automáticamente en 4 segundos" aria-valuemin="0" aria-valuemax="4"><i></i></div>');
+  restartInitialOnboardingCountdown();
   window.requestAnimationFrame(() => {
     firstSteps.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   });
 }
 
+function restartInitialOnboardingCountdown() {
+  if (!initialOnboarding.active || initialOnboarding.stage !== 'summary') return;
+  window.clearTimeout(initialOnboarding.dismissTimer);
+  const bar = initialOnboarding.coachmark.querySelector('.initial-onboarding-countdown i');
+  bar?.getAnimations().forEach(animation => animation.cancel());
+  bar?.animate([{ width: '0%' }, { width: '100%' }], { duration: 4000, fill: 'forwards', easing: 'linear' });
+  initialOnboarding.dismissTimer = window.setTimeout(finishInitialOnboarding, 4000);
+}
+document.addEventListener('pointerdown', restartInitialOnboardingCountdown, { capture: true });
+document.addEventListener('keydown', restartInitialOnboardingCountdown, { capture: true });
+
 function finishInitialOnboarding() {
   if (!initialOnboarding.active) return;
+  window.clearTimeout(initialOnboarding.dismissTimer);
   initialOnboarding.target?.classList.remove('is-onboarding-target');
   initialOnboarding.target?.removeAttribute('aria-describedby');
   topbar.classList.remove('is-onboarding-active');
@@ -899,6 +913,12 @@ function positionClubJourneyCoachmark(target, coachmark) {
     Object.assign(coachmark.style, { width: `${mobile ? bounds.width - 24 : 340}px`, left: `${mobile ? bounds.left + 12 : bounds.right - 364}px`, right: 'auto', bottom: 'auto', top: `${bounds.top + (mobile ? 84 : 96)}px` });
     fitGuideCoachmark(coachmark);
     clubJourney.layer.style.setProperty('--club-terms-coachmark-height', `${coachmark.offsetHeight}px`);
+    const detail = clubJourney.layer.querySelector('.club-ticket-detail--image');
+    if (detail) {
+      const availableHeight = bounds.height - coachmark.offsetHeight - 176;
+      const width = mobile ? Math.min(bounds.width - 32, 344, availableHeight >= 400 ? availableHeight * 344 / 680 : 312) : Math.min(1028, bounds.width - 424);
+      detail.style.width = width + 'px';
+    }
     return;
   }
   if (clubJourney.layer?.dataset.clubScreen === 'marketplace' && window.matchMedia('(max-width:768px)').matches) {
@@ -998,7 +1018,7 @@ function positionClubJourneyUI() {
   if (!layer) return;
   const target = layer.querySelector('.club-guide-target');
   const coachmark = layer.querySelector('.club-prototype-coachmark');
-  if (layer.dataset.clubScreen === 'terms' && target && !window.matchMedia('(max-width:768px)').matches) {
+  if (layer.dataset.clubScreen === 'terms' && target && !layer.querySelector('.club-ticket-detail--image') && !window.matchMedia('(max-width:768px)').matches) {
     const summary = layer.querySelector('.club-ticket-summary');
     Object.assign(target.style, { left: `${summary.offsetLeft + summary.offsetWidth * .07}px`, top: `${summary.offsetTop + summary.offsetHeight * .74}px`, width: `${summary.offsetWidth * .86}px`, height: `${summary.offsetHeight * .17}px` });
   }
@@ -1233,23 +1253,7 @@ function clubMarketplaceScreen({ guide = true } = {}) {
 }
 
 function clubTermsScreen() {
-  const ticket = clubJourney.selectedTicket;
-  const names = ['Apuesta deportiva de S/50', 'Casino en vivo de S/150', 'Casino de S/50', 'Virtuales de S/50'];
-  const name = names[ticket - 1];
-  const sports = ticket === 1;
-  const odds = sports
-    ? 'Cuota mínima por evento 2.0, por cupón 2.0, cuota máxima por cupón 20. Se añadirá al saldo la ganancia neta (se descuenta el monto de la jugada).'
-    : 'Los requisitos de juego y el cálculo del beneficio dependen del bono elegido. Consulta sus condiciones específicas antes de confirmar el canje.';
-  const exclusions = sports
-    ? 'No válido para apuestas combinadas en un mismo evento. No aplica para apuestas con Cashout ni Creador de apuestas.'
-    : 'Revisa qué modalidades quedan excluidas para este bono antes de utilizarlo.';
-  const validity = sports
-    ? 'Después de otorgada la promoción, esta tiene una vigencia de 7 días.'
-    : 'Comprueba la vigencia indicada para el bono seleccionado.';
-  const withdrawal = sports
-    ? 'En caso de retiro antes de cumplir las condiciones, se cancelan el bono y las ganancias asociadas.'
-    : 'Revisa cómo puede afectar un retiro a un bono con requisitos pendientes.';
-  return `${clubMarketplaceScreen({ guide: false })}<div class="club-confirmation-layer club-terms-layer"><section class="club-ticket-detail" role="dialog" aria-modal="true" aria-label="Detalle y términos del bono"><div class="club-ticket-detail-layout"><article class="club-ticket-summary"><picture><source media="(max-width:768px)" srcset="assets/imgs/ticket-web-${ticket}.png"><img src="assets/imgs/ticket-web-${ticket}.png" alt="Bono de ${name}"></picture></article><article class="club-ticket-terms" aria-label="Términos y condiciones del bono"><h2>${sports ? 'Términos y condiciones' : 'Antes de canjear este bono'}</h2><p class="club-term-odds">${odds}</p><ul><li class="club-term-exclusions">${exclusions}</li><li class="club-term-validity">${validity}</li>${sports ? '<li>No válido para apuestas live, betbuilder ni E-sports.</li><li>No se considerarán apuestas para resultados complementarios de un mismo mercado en un mismo evento.</li>' : ''}<li class="club-term-withdrawal">${withdrawal}</li></ul></article><button class="club-detail-redeem-hotspot" data-club-next="success" type="button" aria-label="Canjear bono de ${name} por 5,000 puntos">Canjear por <img src="https://s3.amazonaws.com/bucket.olimpo.prd/public/web/img/coin.svg" alt=""> 5,000</button></div></section></div>`;
+  return `${clubMarketplaceScreen({ guide: false })}<div class="club-confirmation-layer club-terms-layer"><section class="club-ticket-detail club-ticket-detail--image" role="dialog" aria-modal="true" aria-label="Términos y condiciones del bono"><div class="club-ticket-detail-layout club-terms-image-layout"><picture><source media="(max-width:768px)" srcset="assets/imgs/club-olimpo/canje/terminos-mobile.png"><img src="assets/imgs/club-olimpo/canje/terminos-web.png" alt="Detalle del bono de casino en vivo, términos y condiciones y botón Canjear por 5,000 puntos"></picture><button class="club-detail-redeem-hotspot" data-club-next="success" type="button" aria-label="Canjear bono por 5,000 puntos"></button><button class="club-terms-image-close" data-club-close type="button" aria-label="Cerrar detalle del bono"></button></div></section></div>`;
 }
 
 function clubSuccessScreen() {
@@ -1301,6 +1305,7 @@ function renderClubJourney(stepIndex = clubJourney.step) {
     if (clubJourneyPointerSteps.has(stepIndex)) clubJourney.layer.insertAdjacentHTML('beforeend', `<span class="club-coachmark-pointer" aria-hidden="true"></span>${clubJourneyCursorTuner(stepIndex)}`);
     requestAnimationFrame(() => {
       positionClubJourneyUI();
+      if (step.screen === 'terms') target.scrollIntoView({ block: 'nearest', behavior: 'auto' });
       if (step.screen !== 'terms') target.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
       window.setTimeout(() => {
         positionClubJourneyUI();

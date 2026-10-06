@@ -134,6 +134,12 @@ Validación de estos cambios: 184 comprobaciones sin fallos en Chromium y WebKit
 
 ## Corrección y validación de visibilidad — 2026-10-05
 
+Actualización posterior: los coach marks de orientación Club usan fondo opaco y no aplican `filter` ni `backdrop-filter`, eliminando el desenfoque observado en los pasos 2 y 3. El resumen del onboarding inicial incorpora una barra de carga de cuatro segundos; al completar ese tiempo sin interacción se cierra la guía y se libera el desplazamiento. Una pulsación o tecla reinicia el contador; cerrar manualmente cancela el temporizador.
+
+El paso 5 del canje utiliza las imágenes originales `club-olimpo/canje/terminos-web.png` y `terminos-mobile.png`. Canjear conserva su interacción mediante un botón transparente sobre el botón dibujado; la X web también es interactiva. El contenedor de la imagen permite desplazamiento cuando la altura disponible es reducida. El coach mark permanece fijo y la flecha sigue apuntando al botón. La barra de desplazamiento y los términos dentro de la imagen son parte del bitmap recibido.
+
+Validación de esta actualización: Chromium y WebKit en 1366×768, 390×844 y 320×480. Se comprobó el cierre automático y el reinicio por interacción, la liberación del scroll, los filtros desactivados en ambos pasos de Club, la imagen correspondiente por dispositivo y el canje mediante el botón superpuesto, sin errores de página.
+
 Corrección adicional del primer paso: iniciar la guía con la página previamente desplazada dejaba el avatar fuera del viewport al bloquear el scroll. Se reprodujo con WebKit: tras desplazar 500 px, el avatar quedaba en `top: -488 px`. Ahora la guía vuelve al inicio antes del bloqueo y fija el encabezado al área de `visualViewport`, actualizándolo cuando cambia su offset. Validación: ocho recorridos táctiles completos (Chromium/WebKit, 320×480 y 390×844, área visible normal y desplazada), pulsando avatar, entrada Descubre Olimpo y Entendido. Todos pasaron y el objetivo inicial quedó visible y pulsable.
 
 Los coach marks de onboarding, Bonos, Club y depósito se limitan al área de `visualViewport`, con margen de 12 px y medición del alto después de aplicar el ancho. Si el contenido supera el área visible, el coach mark permite desplazamiento interno. Bonos mide su contenido con el ancho mobile antes de posicionar el objetivo. Los objetivos móviles de Club/depósito se desplazan por programa cuando hace falta espacio para el coach mark.
