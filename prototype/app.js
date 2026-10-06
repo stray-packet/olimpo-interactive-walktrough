@@ -815,15 +815,11 @@ const clubRedemptionSteps = [
   { screen: 'home', target: '.club-redemption-target', title: 'Entra a la tienda', body: 'Pulsa «¡Quiero canjear!» para buscar un bono con tus puntos.' },
   { screen: 'portal', target: '[data-club-next="marketplace"]', title: 'Elige Bonos', body: 'Aquí también ves tus puntos en la esquina superior derecha. Entra a «Bonos» para ver las opciones.' },
   { screen: 'marketplace', target: '.club-ticket-grid', title: 'Elige tu bono', body: 'Puedes canjear cualquiera de estos cuatro bonos por 5,000 puntos. Pulsa «Canjear» en el que prefieras.' },
-  { screen: 'terms', target: '.club-term-odds', title: 'Revisa las cuotas', body: 'Lee las cuotas mínimas y máximas, y cómo se calcula la ganancia neta antes de canjear.' },
-  { screen: 'terms', target: '.club-term-exclusions', title: 'Mira las restricciones', body: 'Revisa las apuestas y modalidades que no participan en esta promoción.' },
-  { screen: 'terms', target: '.club-term-validity', title: 'Comprueba la vigencia', body: 'Después de otorgada, esta promoción tiene una vigencia de 7 días.' },
-  { screen: 'terms', target: '.club-term-withdrawal', title: 'Antes de retirar', body: 'Si retiras antes de cumplir las condiciones, se cancelan el bono y las ganancias asociadas.' },
-  { screen: 'terms', target: '.club-detail-redeem-hotspot', title: 'Confirma el canje', body: 'Cuando termines de revisar las condiciones, pulsa «Canjear» sobre la imagen del bono elegido.' },
-  { screen: 'success', target: '.club-success-modal', title: '¡Bono canjeado!', body: 'Este modal confirma el canje simulado. Puedes ir a «Mis bonos» o continuar explorando Club Olimpo.' }
+  { screen: 'terms', target: '.club-detail-redeem-hotspot', title: 'Lee los términos y condiciones', body: 'Revisa las condiciones del bono. Cuando termines de leerlas, pulsa «Canjear».' },
+  { screen: 'success', target: '.club-success-modal' }
 ];
-const clubJourneyPointerSteps = new Set([1, 2, 8]);
-const clubJourneyRequiredActions = { 1: 'Pulsa «Quiero canjear»', 2: 'Pulsa «Bonos»', 3: 'Pulsa «Canjear»', 8: 'Pulsa «Canjear»' };
+const clubJourneyPointerSteps = new Set([1, 2, 4]);
+const clubJourneyRequiredActions = { 1: 'Pulsa «Quiero canjear»', 2: 'Pulsa «Bonos»', 3: 'Pulsa «Canjear»', 4: 'Pulsa «Canjear»' };
 
 function clubJourneyCursorTuner(stepIndex) {
   const tune = clubJourney.cursorTunes[stepIndex] || { x: 0, y: 0, rotation: 0 };
@@ -833,22 +829,23 @@ function clubJourneyCursorTuner(stepIndex) {
 function clubCoachmark(stepIndex) {
   const step = clubRedemptionSteps[stepIndex];
   const current = stepIndex + 1;
-  const total = clubRedemptionSteps.length;
-  const generalCopy = {
-    4: ['Revisa los requisitos', 'Comprueba los requisitos de juego y cómo se calcula el beneficio del bono que elegiste.'],
-    5: ['Mira las restricciones', 'Revisa qué modalidades no participan en el bono que elegiste.'],
-    6: ['Comprueba la vigencia', 'Confirma hasta cuándo podrás usar el bono seleccionado.'],
-    7: ['Antes de retirar', 'Revisa qué sucede si retiras con requisitos del bono pendientes.']
-  };
-  const [title, body] = clubJourney.selectedTicket === 1 || !generalCopy[stepIndex]
-    ? [step.title, step.body]
-    : generalCopy[stepIndex];
+  const total = clubRedemptionSteps.length - 1;
+  const { title, body } = step;
+  if (step.screen === 'terms') return `<aside class="club-prototype-coachmark" id="clubJourneyCoachmark" role="status"><button class="club-coachmark-close" data-club-close type="button" aria-label="Cerrar guía">×</button><span>Canjea tu bono</span><strong>${title}</strong><p>${body}</p></aside>`;
   const requiredAction = clubJourneyRequiredActions[stepIndex];
   return `<aside class="club-prototype-coachmark" id="clubJourneyCoachmark" role="status"><button class="club-coachmark-close" data-club-close type="button" aria-label="Cerrar guía">×</button><span>Canjea tu bono</span><strong>${title}</strong><p>${body}</p><span>Paso ${current} de ${total}</span>${tourProgressBar(current, total)}<div class="club-orientation-controls"><button data-club-journey-prev type="button" ${stepIndex === 0 ? 'disabled' : ''}>Anterior</button><button data-club-journey-next type="button" ${requiredAction ? 'disabled' : ''}>${requiredAction || (stepIndex === total - 1 ? 'Finalizar' : 'Siguiente')}</button></div></aside>`;
 }
 
 function positionClubJourneyCoachmark(target, coachmark) {
   if (!target || !coachmark) return;
+  if (clubJourney.layer?.dataset.clubScreen === 'terms') {
+    const bounds = guideVisibleBounds();
+    const mobile = window.matchMedia('(max-width:768px)').matches;
+    Object.assign(coachmark.style, { width: `${mobile ? bounds.width - 24 : 340}px`, left: `${mobile ? bounds.left + 12 : bounds.right - 364}px`, right: 'auto', bottom: 'auto', top: `${bounds.top + (mobile ? 84 : 96)}px` });
+    fitGuideCoachmark(coachmark);
+    clubJourney.layer.style.setProperty('--club-terms-coachmark-height', `${coachmark.offsetHeight}px`);
+    return;
+  }
   if (clubJourney.layer?.dataset.clubScreen === 'marketplace' && window.matchMedia('(max-width:768px)').matches) {
     const bounds = guideVisibleBounds();
     Object.assign(coachmark.style, { width: `${bounds.width - 24}px`, left: `${bounds.left + 12}px`, right: 'auto', bottom: 'auto' });
@@ -875,6 +872,13 @@ function positionClubJourneyCoachmark(target, coachmark) {
 function positionClubGuidePointer(target, coachmark, pointer, stepIndex) {
   if (!target || !pointer) return;
   const rect = target.getBoundingClientRect();
+  if (clubJourney.layer?.dataset.clubScreen === 'terms') {
+    const mobile = window.matchMedia('(max-width:768px)').matches;
+    pointer.style.left = `${mobile ? rect.left + rect.width / 2 - 24 : Math.max(4, rect.left - 48)}px`;
+    pointer.style.top = `${mobile ? rect.top - 46 : rect.top + rect.height / 2 - 24}px`;
+    pointer.style.setProperty('--club-pointer-rotation', mobile ? '225deg' : '315deg');
+    return;
+  }
   const card = coachmark?.getBoundingClientRect();
   const pointerSize = 48;
   let left;
@@ -900,8 +904,9 @@ function positionClubGuidePointer(target, coachmark, pointer, stepIndex) {
   if (!tune) {
     tune = clubJourney.cursorTunes[stepIndex] = { x: 0, y: 0, rotation: Number.parseInt(rotation, 10) };
     const rotationControl = clubJourney.layer.querySelector('[data-club-journey-cursor="rotation"]');
-    rotationControl.value = String(tune.rotation);
-    clubJourney.layer.querySelector('[data-club-journey-cursor-value="rotation"]').textContent = `${tune.rotation}°`;
+    if (rotationControl) rotationControl.value = String(tune.rotation);
+    const rotationValue = clubJourney.layer.querySelector('[data-club-journey-cursor-value="rotation"]');
+    if (rotationValue) rotationValue.textContent = `${tune.rotation}°`;
   }
   pointer.style.left = `${Math.max(4, Math.min(window.innerWidth - pointerSize - 4, left + tune.x))}px`;
   pointer.style.top = `${Math.max(4, Math.min(window.innerHeight - pointerSize - 4, top + tune.y))}px`;
@@ -929,6 +934,10 @@ function positionClubJourneyUI() {
   if (!layer) return;
   const target = layer.querySelector('.club-guide-target');
   const coachmark = layer.querySelector('.club-prototype-coachmark');
+  if (layer.dataset.clubScreen === 'terms' && target && !window.matchMedia('(max-width:768px)').matches) {
+    const summary = layer.querySelector('.club-ticket-summary');
+    Object.assign(target.style, { left: `${summary.offsetLeft + summary.offsetWidth * .07}px`, top: `${summary.offsetTop + summary.offsetHeight * .74}px`, width: `${summary.offsetWidth * .86}px`, height: `${summary.offsetHeight * .17}px` });
+  }
   positionClubJourneyCoachmark(target, coachmark);
   const focus = layer.querySelector('.club-journey-focus');
   if (target && focus) {
@@ -1168,11 +1177,11 @@ function clubTermsScreen() {
   const withdrawal = sports
     ? 'En caso de retiro antes de cumplir las condiciones, se cancelan el bono y las ganancias asociadas.'
     : 'Revisa cómo puede afectar un retiro a un bono con requisitos pendientes.';
-  return `${clubMarketplaceScreen({ guide: false })}<div class="club-confirmation-layer club-terms-layer"><section class="club-ticket-detail" role="dialog" aria-modal="true" aria-label="Detalle y términos del bono"><div class="club-ticket-detail-layout"><article class="club-ticket-summary"><picture><source media="(max-width:767px)" srcset="assets/imgs/ticket-mobile-${ticket}.png"><img src="assets/imgs/ticket-web-${ticket}.png" alt="Bono de ${name}"></picture><button class="club-detail-redeem-hotspot" data-club-next="success" type="button" aria-label="Canjear bono de ${name} por 5,000 puntos"></button></article><article class="club-ticket-terms" aria-label="Términos y condiciones del bono"><h2>${sports ? 'Términos y condiciones' : 'Antes de canjear este bono'}</h2><p class="club-term-odds">${odds}</p><ul><li class="club-term-exclusions">${exclusions}</li><li class="club-term-validity">${validity}</li>${sports ? '<li>No válido para apuestas live, betbuilder ni E-sports.</li><li>No se considerarán apuestas para resultados complementarios de un mismo mercado en un mismo evento.</li>' : ''}<li class="club-term-withdrawal">${withdrawal}</li></ul></article></div></section></div>`;
+  return `${clubMarketplaceScreen({ guide: false })}<div class="club-confirmation-layer club-terms-layer"><section class="club-ticket-detail" role="dialog" aria-modal="true" aria-label="Detalle y términos del bono"><div class="club-ticket-detail-layout"><article class="club-ticket-summary"><picture><source media="(max-width:768px)" srcset="assets/imgs/ticket-web-${ticket}.png"><img src="assets/imgs/ticket-web-${ticket}.png" alt="Bono de ${name}"></picture></article><article class="club-ticket-terms" aria-label="Términos y condiciones del bono"><h2>${sports ? 'Términos y condiciones' : 'Antes de canjear este bono'}</h2><p class="club-term-odds">${odds}</p><ul><li class="club-term-exclusions">${exclusions}</li><li class="club-term-validity">${validity}</li>${sports ? '<li>No válido para apuestas live, betbuilder ni E-sports.</li><li>No se considerarán apuestas para resultados complementarios de un mismo mercado en un mismo evento.</li>' : ''}<li class="club-term-withdrawal">${withdrawal}</li></ul></article><button class="club-detail-redeem-hotspot" data-club-next="success" type="button" aria-label="Canjear bono de ${name} por 5,000 puntos">Canjear por <img src="https://s3.amazonaws.com/bucket.olimpo.prd/public/web/img/coin.svg" alt=""> 5,000</button></div></section></div>`;
 }
 
 function clubSuccessScreen() {
-  return `${clubMarketplaceScreen({ guide: false })}<div class="club-confirmation-layer club-success-layer"><section class="club-success-modal" role="dialog" aria-modal="true" aria-label="Confirmación del canje"><img src="assets/imgs/modal-confirmacion-web.png" alt="Felicidades, canjeaste tu bono. Ve a Mis bonos, actívalo y empieza a jugar."><button data-club-close class="club-success-hotspot club-success-hotspot--bonuses" type="button" aria-label="Ir a Mis bonos"></button><button data-club-close class="club-success-hotspot club-success-hotspot--continue" type="button" aria-label="Continuar canjeando"></button></section></div>`;
+  return `${clubMarketplaceScreen({ guide: false })}<div class="club-confirmation-layer club-success-layer"><section class="club-success-modal" role="dialog" aria-modal="true" aria-label="Confirmación del canje"><picture><source media="(max-width:768px)" srcset="assets/imgs/club-olimpo/canje/confirmacion-mobile.png"><img src="assets/imgs/club-olimpo/canje/confirmacion-web.png" alt="¡Felicidades, canjeaste tu bono! Ve a la sección de Mis bonos, actívalo y empieza a jugar."></picture><button data-club-close class="club-success-hotspot club-success-hotspot--bonuses" type="button" aria-label="Ir a Mis bonos"></button></section></div>`;
 }
 
 function renderClubJourney(stepIndex = clubJourney.step) {
@@ -1189,9 +1198,10 @@ function renderClubJourney(stepIndex = clubJourney.step) {
   clubJourney.layer.dataset.clubScreen = step.screen;
   clubJourney.layer.dataset.clubStep = String(stepIndex);
   clubJourney.layer.innerHTML = `<button class="club-prototype-close" data-club-close type="button" aria-label="Cerrar recorrido">×</button>${screens[step.screen]({ guide: false })}${clubMobileNavMarkup()}`;
-  if (persistentCoachmark) clubJourney.layer.append(persistentCoachmark);
-  if (persistentFocus) clubJourney.layer.append(persistentFocus);
+  if (persistentCoachmark && step.screen !== 'success') clubJourney.layer.append(persistentCoachmark);
+  if (persistentFocus && step.screen !== 'success') clubJourney.layer.append(persistentFocus);
   if (previousScreen !== step.screen) clubJourney.layer.scrollTop = 0;
+  if (step.screen === 'success') return;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   clubJourney.timer = window.setTimeout(() => {
     if (!clubJourney.layer || clubJourney.step !== stepIndex) return;
@@ -1213,7 +1223,7 @@ function renderClubJourney(stepIndex = clubJourney.step) {
     if (clubJourneyPointerSteps.has(stepIndex)) clubJourney.layer.insertAdjacentHTML('beforeend', `<span class="club-coachmark-pointer" aria-hidden="true"></span>${clubJourneyCursorTuner(stepIndex)}`);
     requestAnimationFrame(() => {
       positionClubJourneyUI();
-      target.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
+      if (step.screen !== 'terms') target.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
       window.setTimeout(() => {
         positionClubJourneyUI();
         target.focus({ preventScroll: true });
@@ -1259,7 +1269,7 @@ function startClubRedemptionJourney() {
     const next = event.target.closest('[data-club-next]')?.dataset.clubNext;
     if ((next === 'portal' && clubJourney.step === 1) ||
         (next === 'marketplace' && clubJourney.step === 2) ||
-        (next === 'success' && clubJourney.step === 8)) advanceClubJourney(1, { viaTarget: true });
+        (next === 'success' && clubJourney.step === 4)) advanceClubJourney(1, { viaTarget: true });
   });
   layer.addEventListener('input', (event) => {
     const control = event.target.closest('[data-club-journey-cursor]');
