@@ -849,6 +849,15 @@ function clubCoachmark(stepIndex) {
 
 function positionClubJourneyCoachmark(target, coachmark) {
   if (!target || !coachmark) return;
+  if (clubJourney.layer?.dataset.clubScreen === 'marketplace' && window.matchMedia('(max-width:768px)').matches) {
+    const bounds = guideVisibleBounds();
+    Object.assign(coachmark.style, { width: `${bounds.width - 24}px`, left: `${bounds.left + 12}px`, right: 'auto', bottom: 'auto' });
+    fitGuideCoachmark(coachmark);
+    coachmark.style.top = `${Math.max(bounds.top + 72, bounds.bottom - coachmark.offsetHeight - 76)}px`;
+    fitGuideCoachmark(coachmark);
+    clubJourney.layer.style.setProperty('--club-marketplace-coachmark-height', `${coachmark.offsetHeight}px`);
+    return;
+  }
   if (clubJourney.layer?.dataset.clubScreen !== 'terms' || window.matchMedia('(max-width: 768px)').matches) {
     positionAnchoredCoachmark(target, coachmark);
     return;

@@ -556,7 +556,7 @@ html.is-initial-onboarding,body.is-initial-onboarding{overflow:hidden;overscroll
 }
 
 /* Club Olimpo: tickets y estados de canje construidos con los assets locales observados. */
-.club-ticket-grid{grid-template-columns:repeat(4,minmax(0,260px));align-items:start;gap:24px;max-width:1120px;margin:0 auto}.club-ticket-card{position:relative;min-width:0}.club-ticket-card picture,.club-ticket-card img{display:block;width:100%;height:auto}.club-ticket-hotspot,.club-detail-redeem-hotspot,.club-success-hotspot{position:absolute;border:0;background:transparent;cursor:pointer}.club-ticket-hotspot{left:7%;right:7%;top:73%;height:17%;border-radius:12px}.club-ticket-hotspot.club-guide-target{position:absolute!important}.club-ticket-hotspot:focus-visible,.club-detail-redeem-hotspot:focus-visible,.club-success-hotspot:focus-visible{outline:3px solid #19572c;outline-offset:2px}
+.club-ticket-grid{grid-template-columns:repeat(2,minmax(0,354px));align-items:start;gap:24px;max-width:732px;margin:0 auto}.club-ticket-card{position:relative;min-width:0}.club-ticket-card picture,.club-ticket-card img{display:block;width:100%;height:auto}.club-ticket-hotspot,.club-detail-redeem-hotspot,.club-success-hotspot{position:absolute;border:0;background:transparent;cursor:pointer}.club-ticket-hotspot{left:7%;right:7%;top:73%;height:17%;border-radius:12px}.club-ticket-hotspot.club-guide-target{position:absolute!important}.club-ticket-hotspot:focus-visible,.club-detail-redeem-hotspot:focus-visible,.club-success-hotspot:focus-visible{outline:3px solid #19572c;outline-offset:2px}
 .club-terms-layer{align-items:start;padding:28px 48px 180px;overflow:auto}.club-ticket-detail{position:relative;width:min(1028px,calc(100vw - 96px));border-radius:8px}.club-ticket-detail picture,.club-ticket-detail img{display:block;width:100%;height:auto}.club-detail-redeem-hotspot{left:3.8%;top:66%;width:30%;height:11%;border-radius:12px}
 .club-success-layer{align-items:start;padding:64px 20px 180px}.club-success-modal{position:relative;width:min(598px,calc(100vw - 40px));border-radius:16px}.club-success-modal>img{display:block;width:100%;height:auto;border-radius:16px}.club-success-hotspot{top:78%;height:13%;border-radius:16px}.club-success-hotspot--bonuses{left:5.4%;width:38%}.club-success-hotspot--continue{left:47.5%;width:47%}
 @media(max-width:1023px){.club-ticket-grid{grid-template-columns:repeat(2,minmax(0,260px));max-width:544px}.club-ticket-card{width:auto;height:auto}.club-ticket-grid .club-ticket-card{display:block}}
@@ -891,6 +891,14 @@ body[data-guide-debug] .club-cursor-tuner{display:grid}
 .initial-onboarding-overlay[data-stage="summary"] .initial-onboarding-coachmark>strong{margin-top:0}
 .initial-onboarding-overlay[data-stage="summary"] .initial-onboarding-coachmark>strong{padding-right:34px}
 .bonus-entry-overlay .bonus-tour-coachmark{z-index:67}
+@media(max-width:768px){
+  .club-redemption-layer[data-club-screen="marketplace"]{touch-action:pan-y;overflow-y:auto}
+  .club-redemption-layer[data-club-screen="marketplace"]::after{display:none}
+  .club-redemption-layer[data-club-screen="marketplace"] .club-journey-focus,
+  .club-redemption-layer[data-club-screen="marketplace"] .club-coachmark-pointer{display:none}
+  .club-redemption-layer[data-club-screen="marketplace"] .club-ticket-grid.club-guide-target{padding:0;margin:0 auto;outline:none!important;box-shadow:none!important;animation:none!important}
+  .club-redemption-layer[data-club-screen="marketplace"] .club-marketplace-content{padding-bottom:calc(var(--club-marketplace-coachmark-height,240px) + 110px)}
+}
 body:has(.bonus-entry-overlay) .profile-drawer .account-view{overflow:hidden;touch-action:none}
 .profile-drawer.is-onboarding-active .account-view:after{position:fixed}
 .deposit-flow-layer[data-deposit-screen="methods"]{scroll-padding-top:calc(var(--deposit-methods-coachmark-height,240px) + 72px)}
