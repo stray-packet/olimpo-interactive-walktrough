@@ -94,3 +94,5 @@
 .bonus-tour-example{width:284px}
 .bonus-tour-example.bonus-tour-target{--bonus-target-background:#fff}
 @media(max-width:768px){.bonus-tour-example{width:min(100%,275px)}}
+
+.bonus-tour-pointer{position:fixed;z-index:66;width:48px;height:48px;background:url('assets/imgs/interactive-walkthrough-cursor.png') center/contain no-repeat;filter:drop-shadow(0 4px 6px rgba(0,0,0,.45));pointer-events:none;animation:shared-guide-pointer-float 1.35s ease-in-out infinite}.bonus-tour-pointer[hidden]{display:none}@media(prefers-reduced-motion:reduce){.bonus-tour-pointer{animation:none}}

@@ -7,6 +7,7 @@ const banners = [
 
 const heroTrack = document.querySelector('#heroTrack');
 const heroDots = document.querySelector('#heroDots');
+let clubBonusRedeemed = false;
 let activeBanner = 0;
 let timer;
 
@@ -132,7 +133,7 @@ function positionInitialOnboarding() {
 function setInitialOnboardingCopy({ title, body, summary = false }) {
   initialOnboarding.overlay.dataset.stage = summary ? 'summary' : initialOnboarding.stage;
   const closeControl = summary ? '<button class="initial-onboarding-close" type="button" aria-label="Cerrar bienvenida">×</button>' : '';
-  initialOnboarding.coachmark.innerHTML = `${closeControl}<strong>${title}</strong><p>${body}</p>`;
+  initialOnboarding.coachmark.innerHTML = `${closeControl}<strong>${title}</strong>${body ? `<p>${body}</p>` : ''}`;
 }
 
 function startInitialOnboarding() {
@@ -397,7 +398,7 @@ function initDiscoveryTuner() {
 function discoveryView({ animate = true } = {}) {
   const count = firstStepsCompletedCount();
   const completed = count === onboardingTaskOrder.length;
-  const redeemed = sessionStorage.getItem('olimpo-bono-canjeado') === 'true';
+  const redeemed = clubBonusRedeemed;
   const benefit = redeemed ? '¡Onboarding completado! Canjeaste tu bono de S/50.' : completed
     ? '¡Onboarding completado! Ya puedes canjear tu bono de S/50.'
     : '¡Completa los 4 pasos y canjea un bono de S/50!';
@@ -646,7 +647,7 @@ const depositMethods = [
 ];
 
 function depositMethodsScreen() {
-  const cards = depositMethods.map(([name, range, asset, raffle]) => `<button class="deposit-method-card" data-deposit-method="${asset}" type="button"><img class="deposit-method-logo" src="https://www.olimpo.bet/static/img/retiros/metodos/${asset}.webp" alt="${name}"><span><strong>${name}</strong><small>${range}</small></span>${raffle ? '<em>Sorteo <img src="https://www.olimpo.bet/assets/img/deposit/giveaway.svg" alt=""></em>' : ''}<b>›</b></button>`).join('');
+  const cards = depositMethods.map(([name, range, asset, raffle]) => `<button class="deposit-method-card" data-deposit-method="${asset}" type="button"><img class="deposit-method-logo" src="https://www.olimpo.bet/static/img/retiros/metodos/${asset}.webp" alt="${name}"><span><strong>${name}</strong><small>${range}</small></span><b>›</b></button>`).join('');
   return `${depositHeader()}<main class="deposit-flow-content"><h2>Todos los medios de pago</h2><div class="deposit-method-grid deposit-guide-target" tabindex="-1" aria-label="Elige cualquiera de los medios de pago disponibles">${cards}</div></main><aside class="deposit-flow-coachmark" role="status"><button class="deposit-flow-close" data-deposit-close type="button" aria-label="Cerrar guía">×</button><span>Primer depósito</span><strong>Elige el medio de pago</strong><p>Selecciona el medio que se te acomode mejor.</p><span>Paso 2 de 4</span>${tourProgressBar(2, 4)}${depositCoachmarkControls({ previous: true, next: false })}</aside>`;
 }
 
@@ -836,9 +837,9 @@ function tourProgressBar(current, total) {
 }
 
 const clubRedemptionSteps = [
-  { screen: 'home', target: '.club-points-summary-target h2', title: 'Tus puntos canjeables', body: 'Tienes 5,000 puntos canjeables. Los usaremos para canjear tu primer bono.' },
-  { screen: 'home', target: '.club-redemption-target', title: 'Entra a la tienda', body: 'Pulsa "¡Quiero canjear!" para buscar un bono con tus puntos.' },
-  { screen: 'portal', target: '.club-portal-list', title: 'Elige Bonos', body: 'Aquí también ves tus puntos en la esquina superior derecha. Entra a "Bonos" para ver las opciones.' },
+  { screen: 'home', target: '.club-points-summary-target h2', title: '¡Te hemos regalado 5,000 puntos para que canjees tu bono de regalo!', body: '' },
+  { screen: 'home', target: '.club-redemption-target', title: 'Entra a la tienda', body: 'Pulsa el botón para ingresar a la tienda de Club Olimpo' },
+  { screen: 'portal', target: '.club-portal-list', title: 'Entra a Bonos', body: 'En esta categoría es donde encontrarás los bonos que puedes canjear con tus puntos.' },
   { screen: 'marketplace', target: '.club-ticket-grid', title: 'Elige tu bono', body: 'Puedes canjear cualquiera de estos cuatro bonos por 5,000 puntos. Pulsa "Canjear" en el que prefieras.' },
   { screen: 'terms', target: '.club-detail-redeem-hotspot', title: 'Lee los términos y condiciones', body: 'Revisa las condiciones del bono. Cuando termines de leerlas, pulsa "Canjear".' },
   { screen: 'success', target: '.club-success-modal' }
@@ -858,14 +859,13 @@ function clubJourneyTune(stepIndex) {
   if (approved[key]) return approved[key];
   if (!clubJourney.cursorTunes[key]) {
     let saved;
-    try { saved = JSON.parse(localStorage.getItem('olimpo-canje-flecha-' + key)); } catch {}
     const defaults = stepIndex === 4 ? (clubJourneyDevice() === 'mobile' ? { x: -82, y: 67, rotation: 360 } : { x: 74, y: 30, rotation: 347 }) : { x: 0, y: 0, rotation: null };
     clubJourney.cursorTunes[key] = { ...defaults, flip: true, ...(stepIndex === 4 ? {} : saved) };
   }
   return clubJourney.cursorTunes[key];
 }
 function clubJourneyCursorTuner(stepIndex) {
-  if (stepIndex !== 4) return '';
+  return '';
   const tune = clubJourneyTune(stepIndex);
   return '<details class="club-cursor-tuner club-journey-cursor-tuner"><summary>Ajustar flecha · ' + clubJourneyDevice() + ' · paso ' + (stepIndex + 1) + '</summary><label>Eje X <output data-club-journey-cursor-value="x">' + tune.x + ' px</output><input data-club-journey-cursor="x" type="range" min="-200" max="200" value="' + tune.x + '"></label><label>Eje Y <output data-club-journey-cursor-value="y">' + tune.y + ' px</output><input data-club-journey-cursor="y" type="range" min="-200" max="200" value="' + tune.y + '"></label><label>Rotación <output data-club-journey-cursor-value="rotation">' + (tune.rotation ?? 0) + '°</output><input data-club-journey-cursor="rotation" type="range" min="-360" max="360" value="' + (tune.rotation ?? 0) + '"></label><label>Flip horizontal <select data-club-journey-cursor="flip"><option value="true" ' + (tune.flip ? 'selected' : '') + '>Sí</option><option value="false" ' + (!tune.flip ? 'selected' : '') + '>No</option></select></label></details>';
 }
@@ -900,9 +900,9 @@ function clubCoachmark(stepIndex) {
   const current = stepIndex + 1;
   const total = clubRedemptionSteps.length - 1;
   const { title, body } = step;
-  if (step.screen === 'terms') return `<aside class="club-prototype-coachmark" id="clubJourneyCoachmark" role="status"><button class="club-coachmark-close" data-club-close type="button" aria-label="Cerrar guía">×</button><span>Canjea tu bono</span><strong>${title}</strong><p>${body}</p></aside>`;
+  if (step.screen === 'terms') return `<aside class="club-prototype-coachmark" id="clubJourneyCoachmark" role="status"><button class="club-coachmark-close" data-club-close type="button" aria-label="Cerrar guía">×</button><span>Canjea tu bono</span><strong>${title}</strong>${body ? `<p>${body}</p>` : ''}</aside>`;
   const requiredAction = clubJourneyRequiredActions[stepIndex];
-  return `<aside class="club-prototype-coachmark" id="clubJourneyCoachmark" role="status"><button class="club-coachmark-close" data-club-close type="button" aria-label="Cerrar guía">×</button><span>Canjea tu bono</span><strong>${title}</strong><p>${body}</p><span>Paso ${current} de ${total}</span>${tourProgressBar(current, total)}<div class="club-orientation-controls"><button data-club-journey-prev type="button" ${stepIndex === 0 ? 'disabled' : ''}>Anterior</button><button data-club-journey-next type="button" ${requiredAction ? 'disabled' : ''}>${requiredAction ? 'Siguiente' : (stepIndex === total - 1 ? 'Finalizar' : 'Siguiente')}</button></div></aside>`;
+  return `<aside class="club-prototype-coachmark" id="clubJourneyCoachmark" role="status"><button class="club-coachmark-close" data-club-close type="button" aria-label="Cerrar guía">×</button><span>Canjea tu bono</span><strong>${title}</strong>${body ? `<p>${body}</p>` : ''}<span>Paso ${current} de ${total}</span>${tourProgressBar(current, total)}<div class="club-orientation-controls"><button data-club-journey-prev type="button" ${stepIndex === 0 ? 'disabled' : ''}>Anterior</button><button data-club-journey-next type="button" ${requiredAction ? 'disabled' : ''}>${requiredAction ? 'Siguiente' : (stepIndex === total - 1 ? 'Finalizar' : 'Siguiente')}</button></div></aside>`;
 }
 
 function positionClubJourneyCoachmark(target, coachmark) {
@@ -1057,7 +1057,7 @@ function clubOrientationCoachmark(step, title, body) {
   const final = step === clubOrientationSteps.length;
   const total = clubOrientationSteps.length + 1;
   const displayStep = step + 1;
-  return `<aside class="club-prototype-coachmark" id="clubOrientationStepCoachmark" role="status"><button class="club-coachmark-close" data-club-close type="button" aria-label="Cerrar guía">×</button><span>Conoce Club Olimpo</span><strong>${title}</strong><p>${body}</p><span>Paso ${displayStep} de ${total}</span>${tourProgressBar(displayStep, total)}<div class="club-orientation-controls"><button data-club-orientation-prev type="button" ${step === 1 ? 'disabled' : ''}>Anterior</button><button data-club-orientation-next type="button">${final ? 'Finalizar' : 'Continuar'}</button></div></aside>`;
+  return `<aside class="club-prototype-coachmark" id="clubOrientationStepCoachmark" role="status"><button class="club-coachmark-close" data-club-close type="button" aria-label="Cerrar guía">×</button><span>Conoce Club Olimpo</span><strong>${title}</strong>${body ? `<p>${body}</p>` : ''}<span>Paso ${displayStep} de ${total}</span>${tourProgressBar(displayStep, total)}<div class="club-orientation-controls"><button data-club-orientation-prev type="button" ${step === 1 ? 'disabled' : ''}>Anterior</button><button data-club-orientation-next type="button">${final ? 'Finalizar' : 'Continuar'}</button></div></aside>`;
 }
 
 function clubCursorTuner() {
@@ -1288,7 +1288,7 @@ function renderClubJourney(stepIndex = clubJourney.step) {
   if (persistentFocus && step.screen !== 'success') clubJourney.layer.append(persistentFocus);
   if (previousScreen !== step.screen) clubJourney.layer.scrollTop = 0;
   if (stepIndex === 0) animateClubJourneyPoints();
-  if (step.screen === 'success') { sessionStorage.setItem('olimpo-bono-canjeado', 'true'); return; }
+  if (step.screen === 'success') { clubBonusRedeemed = true; return; }
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   clubJourney.timer = window.setTimeout(() => {
     if (!clubJourney.layer || clubJourney.step !== stepIndex) return;
@@ -1376,7 +1376,6 @@ function startClubRedemptionJourney() {
     const key = control.dataset.clubJourneyCursor;
     const tune = clubJourneyTune(clubJourney.step);
     tune[key] = key === 'flip' ? control.value === 'true' : Number(control.value);
-    try { localStorage.setItem('olimpo-canje-flecha-' + clubJourneyDevice() + ':' + clubJourney.step, JSON.stringify(tune)); } catch {}
     syncClubJourneyTuner(tune);
     positionClubJourneyUI();
   });

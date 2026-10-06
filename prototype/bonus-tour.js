@@ -49,7 +49,7 @@ function bonusTourMarkup() {
       <section class="bonus-tour-info"><button data-bonus-open type="button" aria-expanded="false">+ Más Información</button><div class="bonus-tour-terms" hidden><h3>Términos y Condiciones del bono de prueba</h3><p class="bonus-tour-term" data-bonus-validity><strong>Vigencia</strong><span>Disponible hasta el 31/12/2026. Una vez otorgado, tienes 7 días para cumplir las condiciones.</span></p><p class="bonus-tour-term" data-bonus-sections><strong>Secciones válidas</strong><span>Válido para apuestas deportivas simples y combinadas.</span></p><p class="bonus-tour-term" data-bonus-conditions><strong>Condiciones</strong><span>Cuota mínima por evento 2.0, por cupón 2.0 y cuota máxima por cupón 20. Se añadirá al saldo la ganancia neta, descontando el monto de la jugada.</span></p><p class="bonus-tour-term" data-bonus-requirements><strong>Restricciones</strong><span>No válido para apuestas live, betbuilder, Cashout ni E-sports. No se considerarán apuestas para resultados complementarios de un mismo mercado en un mismo evento.</span></p><p class="bonus-tour-term bonus-tour-term--warning" data-bonus-withdrawal><strong>Antes de retirar</strong><span>Si solicitas un retiro antes de cumplir las condiciones, el bono y las ganancias asociadas se cancelan automáticamente.</span></p></div></section></div></section>
       <section class="bonus-tour-empty"><h2>Casino (0)</h2><p>No tienes bonos disponibles</p><h2>Deportes virtuales (0)</h2><p>No tienes bonos disponibles</p><h2>Casino en vivo (0)</h2><p>No tienes bonos disponibles</p></section>
     </div><aside class="bonus-tour-side"><section class="bonus-tour-code"><img src="https://www.olimpo.bet/static/img/bonos/active_code.png" alt="Activa tu código"><div><strong>¡Actívalo y disfruta tu recompensa!</strong><span>Escribe tu código aquí <b>Aplicar</b></span><small>ⓘ&nbsp; Solo válido una vez por usuario.</small></div></section><section class="bonus-tour-wallet"><h3><img src="https://www.olimpo.bet/static/img/bonos/billetera.svg" alt=""> MI BILLETERA</h3><strong>S/ 3.50</strong><small>Saldo</small><div><span>Saldo real <b>S/ 3.50</b></span><span>Bonos <b>S/ 0.00</b></span><span>Apuestas deportivas gratis <b>S/ 0.00</b></span></div></section></aside></main>
-    <nav class="bonus-tour-mobile-nav" aria-label="Navegación móvil">${mobileLinks}</nav><div class="bonus-tour-scrim" aria-hidden="true"></div><span class="initial-onboarding-focus bonus-tour-focus" aria-hidden="true"></span><aside class="bonus-tour-coachmark" role="dialog" aria-label="Guía de bonos" aria-live="polite"></aside>`;
+    <nav class="bonus-tour-mobile-nav" aria-label="Navegación móvil">${mobileLinks}</nav><div class="bonus-tour-scrim" aria-hidden="true"></div><span class="initial-onboarding-focus bonus-tour-focus" aria-hidden="true"></span><span class="bonus-tour-pointer" aria-hidden="true" hidden></span><aside class="bonus-tour-coachmark" role="dialog" aria-label="Guía de bonos" aria-live="polite"></aside>`;
 }
 
 function positionBonusTourFocus() {
@@ -57,10 +57,30 @@ function positionBonusTourFocus() {
   const focus = bonusTour.layer?.querySelector('.bonus-tour-focus');
   if (!target || !focus) return;
   const rect = target.getBoundingClientRect();
+  positionBonusTourPointer(rect);
   focus.style.left = `${rect.left - 7}px`;
   focus.style.top = `${rect.top - 7}px`;
   focus.style.width = `${rect.width + 14}px`;
   focus.style.height = `${rect.height + 14}px`;
+}
+
+function positionBonusTourPointer(rect) {
+  const pointer = bonusTour.layer?.querySelector('.bonus-tour-pointer');
+  if (!pointer) return;
+  const step = bonusTourSteps[bonusTour.step];
+  const show = step && (step.target === '[data-bonus-open]' || step.target === '[data-bonus-activate]');
+  pointer.hidden = !show;
+  if (!show) return;
+  const size = 48;
+  if (rect.left > size + 8) {
+    pointer.style.left = `${rect.left - size - 2}px`;
+    pointer.style.top = `${rect.top + rect.height / 2 - size / 2}px`;
+    pointer.style.transform = 'rotate(135deg)';
+  } else {
+    pointer.style.left = `${Math.max(8, Math.min(window.innerWidth - size - 8, rect.left + rect.width / 2 - size / 2))}px`;
+    pointer.style.top = `${Math.max(8, rect.top - size - 4)}px`;
+    pointer.style.transform = 'rotate(225deg)';
+  }
 }
 
 function positionBonusTourStep() {

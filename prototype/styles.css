@@ -1003,3 +1003,13 @@ body:has(.bonus-entry-overlay) .profile-drawer .account-view{overflow:hidden;tou
   .profile-drawer .reward-node-content{grid-template-columns:56px minmax(0,1fr);column-gap:8px}
   .profile-drawer .reward-node-content .reward-node-chest{width:56px;height:56px}
 }
+
+/* Paso 4 (mobile): los bonos se desplazan por debajo del header y la barra inferior. */
+@media(max-width:768px){
+  .club-prototype-layer[data-club-step="3"] .club-prototype-header,
+  .club-prototype-layer[data-club-step="3"] .club-main-header,
+  .club-prototype-layer[data-club-step="3"] .club-screen-mobile-nav{z-index:109}
+  .club-prototype-layer[data-club-step="3"] .club-prototype-header::after,
+  .club-prototype-layer[data-club-step="3"] .club-main-header::after,
+  .club-prototype-layer[data-club-step="3"] .club-screen-mobile-nav::after{content:"";position:absolute;inset:0;background:rgba(18,18,18,.68);pointer-events:none}
+}
