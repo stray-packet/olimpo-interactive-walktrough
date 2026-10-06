@@ -1,14 +1,16 @@
-const bonusTour = { layer: null, step: 0 };
+const bonusTour = { layer: null, entry: null, entryTarget: null, step: 0 };
 
 const bonusTourSteps = [
-  { target: '[data-bonus-open]', title: 'Abre el detalle del bono', body: 'En Mis bonos encontrarás tus bonos disponibles. Pulsa «Más Información» en este bono de prueba para revisar sus reglas.', action: true },
+  { target: '[data-bonus-entry]', title: 'Entra a Mis bonos', body: 'Pulsa "Mis bonos" en tu menú de usuario para conocer tus bonos.', action: true },
+  { target: '.bonus-tour-example', title: 'Conoce este bono de prueba', body: 'Este bono de prueba te permitirá conocer sus reglas y cómo activarlo durante el tutorial.' },
+  { target: '[data-bonus-open]', title: 'Abre el detalle del bono', body: 'Pulsa "Más Información" para revisar sus reglas.', action: true },
   { target: '[data-bonus-validity]', title: 'Revisa la vigencia', body: 'Aquí ves hasta cuándo está disponible y cuánto tiempo tienes para cumplir las condiciones después de recibirlo.' },
-  { target: '[data-bonus-sections]', title: 'Mira dónde aplica', body: 'Este bono aplica a apuestas deportivas. La sección te indica el tipo de apuestas que cuentan para activarlo.' },
+  { target: '[data-bonus-sections]', title: 'Revisa dónde aplica', body: 'Por ejemplo, este bono aplica a apuestas deportivas. La sección te indica el tipo de apuestas que cuentan para activarlo.' },
   { target: '[data-bonus-conditions]', title: 'Lee las condiciones', body: 'Aquí se muestran la cuota mínima, la cuota máxima y cómo se calcula la ganancia neta del bono.' },
-  { target: '[data-bonus-requirements]', title: 'Comprueba los requisitos', body: 'Estas reglas aclaran qué apuestas no aplican: live, betbuilder, Cashout y E-sports.' },
-  { target: '[data-bonus-activate]', title: 'Activa el bono', body: 'Cuando conozcas las reglas, pulsa «Activar». Esto solo cambia el estado del bono de prueba.', action: true, lockedNextLabel: 'Presiona Activar' },
+  { target: '[data-bonus-requirements]', title: 'Comprueba las restricciones', body: 'Estas reglas aclaran qué tipo de apuestas no aplican.' },
+  { target: '[data-bonus-withdrawal]', title: '¡Ten cuidado!', body: 'Si retiras antes de cumplir las condiciones, el bono y las ganancias asociadas se cancelan.' },
   { target: '[data-bonus-one-active]', title: 'Uno activo a la vez', body: 'Si el bono no es acumulable, debes terminar o resolver el activo antes de activar otro.' },
-  { target: '[data-bonus-withdrawal]', title: 'Antes de retirar', body: 'Si retiras antes de cumplir las condiciones, el bono y las ganancias asociadas se cancelan.' }
+  { target: '[data-bonus-activate]', title: 'Activa el bono', body: 'Luego de leer todas las reglas y conocer tu bono, recién pulsa "Activar".', action: true, lockedNextLabel: 'Presiona Activar' }
 ];
 
 function bonusTourMarkup() {
@@ -20,8 +22,8 @@ function bonusTourMarkup() {
     <main class="bonus-tour-layout"><div class="bonus-tour-main">
       <div class="bonus-tour-categories"><h2>Categorías</h2><div><span class="is-active">Apuestas deportivas <b>1</b></span><span>Casino <b>0</b></span><span>Deportes virtuales <b>0</b></span><span>Casino en vivo <b>0</b></span></div></div>
       <div class="bonus-tour-notice" data-bonus-one-active><span>ⓘ</span><p>Recuerda que solo puedes tener un bono activo a la vez. Apenas se resuelva el evento de tu primer bono, podrás activar el siguiente.</p></div>
-      <section class="bonus-tour-category"><h2>Apuestas deportivas (1)</h2><article class="bonus-tour-card"><div class="bonus-tour-card-head"><img src="https://www.olimpo.bet/static/img/bonos/bono-deportes.svg" alt=""><span>Bono de prueba<small>Solo para este recorrido</small></span><span class="bonus-tour-card-menu" aria-hidden="true">•••</span></div><div class="bonus-tour-card-actions"><span class="bonus-tour-expiry">◷&nbsp; Vence el 31/12/2026</span><button data-bonus-activate type="button">Activar</button></div></article>
-      <section class="bonus-tour-info"><button data-bonus-open type="button" aria-expanded="false">+ Más Información</button><div class="bonus-tour-terms" hidden><h3>Términos y Condiciones del bono de prueba</h3><p class="bonus-tour-term" data-bonus-validity><strong>Vigencia</strong><span>Disponible hasta el 31/12/2026. Una vez otorgado, tienes 7 días para cumplir las condiciones.</span></p><p class="bonus-tour-term" data-bonus-sections><strong>Secciones válidas</strong><span>Válido para apuestas deportivas simples y combinadas.</span></p><p class="bonus-tour-term" data-bonus-conditions><strong>Condiciones</strong><span>Cuota mínima por evento 2.0, por cupón 2.0 y cuota máxima por cupón 20. Se añadirá al saldo la ganancia neta, descontando el monto de la jugada.</span></p><p class="bonus-tour-term" data-bonus-requirements><strong>Restricciones</strong><span>No válido para apuestas live, betbuilder, Cashout ni E-sports. No se considerarán apuestas para resultados complementarios de un mismo mercado en un mismo evento.</span></p><p class="bonus-tour-term bonus-tour-term--warning" data-bonus-withdrawal><strong>Antes de retirar</strong><span>Si solicitas un retiro antes de cumplir las condiciones, el bono y las ganancias asociadas se cancelan automáticamente.</span></p></div></section></section>
+      <section class="bonus-tour-category"><h2>Apuestas deportivas (1)</h2><div class="bonus-tour-example"><article class="bonus-tour-card"><div class="bonus-tour-card-head"><img src="https://www.olimpo.bet/static/img/bonos/bono-deportes.svg" alt=""><span>Bono de prueba<small>Solo para este recorrido</small></span><span class="bonus-tour-card-menu" aria-hidden="true">•••</span></div><div class="bonus-tour-card-actions"><span class="bonus-tour-expiry">◷&nbsp; Vence el 31/12/2026</span><button data-bonus-activate type="button">Activar</button></div></article>
+      <section class="bonus-tour-info"><button data-bonus-open type="button" aria-expanded="false">+ Más Información</button><div class="bonus-tour-terms" hidden><h3>Términos y Condiciones del bono de prueba</h3><p class="bonus-tour-term" data-bonus-validity><strong>Vigencia</strong><span>Disponible hasta el 31/12/2026. Una vez otorgado, tienes 7 días para cumplir las condiciones.</span></p><p class="bonus-tour-term" data-bonus-sections><strong>Secciones válidas</strong><span>Válido para apuestas deportivas simples y combinadas.</span></p><p class="bonus-tour-term" data-bonus-conditions><strong>Condiciones</strong><span>Cuota mínima por evento 2.0, por cupón 2.0 y cuota máxima por cupón 20. Se añadirá al saldo la ganancia neta, descontando el monto de la jugada.</span></p><p class="bonus-tour-term" data-bonus-requirements><strong>Restricciones</strong><span>No válido para apuestas live, betbuilder, Cashout ni E-sports. No se considerarán apuestas para resultados complementarios de un mismo mercado en un mismo evento.</span></p><p class="bonus-tour-term bonus-tour-term--warning" data-bonus-withdrawal><strong>Antes de retirar</strong><span>Si solicitas un retiro antes de cumplir las condiciones, el bono y las ganancias asociadas se cancelan automáticamente.</span></p></div></section></div></section>
       <section class="bonus-tour-empty"><h2>Casino (0)</h2><p>No tienes bonos disponibles</p><h2>Deportes virtuales (0)</h2><p>No tienes bonos disponibles</p><h2>Casino en vivo (0)</h2><p>No tienes bonos disponibles</p></section>
     </div><aside class="bonus-tour-side"><section class="bonus-tour-code"><img src="https://www.olimpo.bet/static/img/bonos/active_code.png" alt="Activa tu código"><div><strong>¡Actívalo y disfruta tu recompensa!</strong><span>Escribe tu código aquí <b>Aplicar</b></span><small>ⓘ&nbsp; Solo válido una vez por usuario.</small></div></section><section class="bonus-tour-wallet"><h3><img src="https://www.olimpo.bet/static/img/bonos/billetera.svg" alt=""> MI BILLETERA</h3><strong>S/ 3.50</strong><small>Saldo</small><div><span>Saldo real <b>S/ 3.50</b></span><span>Bonos <b>S/ 0.00</b></span><span>Apuestas deportivas gratis <b>S/ 0.00</b></span></div></section></aside></main>
     <nav class="bonus-tour-mobile-nav" aria-label="Navegación móvil">${mobileLinks}</nav><div class="bonus-tour-scrim" aria-hidden="true"></div><span class="initial-onboarding-focus bonus-tour-focus" aria-hidden="true"></span><aside class="bonus-tour-coachmark" role="dialog" aria-label="Guía de bonos" aria-live="polite"></aside>`;
@@ -39,6 +41,10 @@ function positionBonusTourFocus() {
 }
 
 function positionBonusTourStep() {
+  if (bonusTour.entry) {
+    positionBonusTourEntry();
+    return;
+  }
   if (!bonusTour.layer) return;
   const target = bonusTour.layer.querySelector('.bonus-tour-target');
   const coachmark = bonusTour.layer.querySelector('.bonus-tour-coachmark');
@@ -77,8 +83,10 @@ function positionBonusTourStep() {
 }
 
 function renderBonusTourStep() {
+  if (bonusTour.step === 0) { showBonusTourEntry(); return; }
   if (!bonusTour.layer) return;
   const step = bonusTourSteps[bonusTour.step];
+  bonusTour.layer.querySelector('.bonus-tour-terms').hidden = bonusTour.step <= 2;
   bonusTour.layer.querySelector('.bonus-tour-target')?.classList.remove('bonus-tour-target');
   const target = bonusTour.layer.querySelector(step.target);
   target.classList.add('bonus-tour-target');
@@ -86,13 +94,14 @@ function renderBonusTourStep() {
   const nextButton = step.action
     ? (step.lockedNextLabel ? `<button type="button" disabled>${step.lockedNextLabel}</button>` : '')
     : `<button data-bonus-next type="button">${bonusTour.step === bonusTourSteps.length - 1 ? 'Finalizar recorrido' : 'Continuar'}</button>`;
-  coachmark.innerHTML = `<button class="bonus-tour-close" data-bonus-close type="button" aria-label="Cerrar recorrido">×</button><span>Conoce tus bonos</span><strong>${step.title}</strong><p>${step.body}</p><span>Paso ${bonusTour.step + 1} de ${bonusTourSteps.length}</span><div class="bonus-tour-progress">${bonusTourSteps.map((_, index) => `<i class="${index <= bonusTour.step ? 'is-filled' : ''}"></i>`).join('')}</div><div class="bonus-tour-controls"><button data-bonus-prev type="button" ${bonusTour.step === 0 ? 'disabled' : ''}>Anterior</button>${nextButton}</div>`;
+  coachmark.innerHTML = bonusTourCoachmarkContent(step, nextButton);
   requestAnimationFrame(() => { positionBonusTourStep(); if (step.action) target.focus({ preventScroll: true }); });
 }
 
 function finishBonusTour({ completed = false } = {}) {
-  if (!bonusTour.layer) return;
-  bonusTour.layer.remove();
+  if (!bonusTour.layer && !bonusTour.entry) return;
+  clearBonusTourEntry();
+  bonusTour.layer?.remove();
   bonusTour.layer = null;
   if (completed) completeGuide('bonuses');
   profileView();
@@ -101,9 +110,70 @@ function finishBonusTour({ completed = false } = {}) {
 }
 
 function startBonusTour() {
-  if (bonusTour.layer || !onboardingTaskIsUnlocked('bonuses')) return;
-  closeDrawer();
+  if (bonusTour.layer || bonusTour.entry || !onboardingTaskIsUnlocked('bonuses')) return;
   bonusTour.step = 0;
+  showBonusTourEntry();
+}
+
+function bonusTourCoachmarkContent(step, nextButton = '') {
+  return `<button class="bonus-tour-close" data-bonus-close type="button" aria-label="Cerrar recorrido">×</button><span>Conoce tus bonos</span><strong>${step.title}</strong><p>${step.body}</p><span>Paso ${bonusTour.step + 1} de ${bonusTourSteps.length}</span><div class="bonus-tour-progress" style="--bonus-tour-step-count:${bonusTourSteps.length}">${bonusTourSteps.map((_, index) => `<i class="${index <= bonusTour.step ? 'is-filled' : ''}"></i>`).join('')}</div><div class="bonus-tour-controls"><button data-bonus-prev type="button" ${bonusTour.step === 0 ? 'disabled' : ''}>Anterior</button>${nextButton}</div>`;
+}
+
+function clearBonusTourEntry() {
+  bonusTour.entry?.remove();
+  bonusTour.entry = null;
+  bonusTour.entryTarget?.classList.remove('is-onboarding-target');
+  bonusTour.entryTarget?.removeAttribute('data-bonus-entry');
+  bonusTour.entryTarget?.removeAttribute('aria-describedby');
+  bonusTour.entryTarget = null;
+  drawer.classList.remove('is-onboarding-active');
+}
+
+function positionBonusTourEntry() {
+  if (!bonusTour.entry || !bonusTour.entryTarget) return;
+  const card = bonusTour.entry.querySelector('.bonus-tour-coachmark');
+  const host = bonusTour.entryTarget.closest('.account-view');
+  const bounds = guideVisibleBounds();
+  card.style.width = `${Math.min(340, bounds.width - 24)}px`;
+  if (host) host.scrollTop += bonusTour.entryTarget.getBoundingClientRect().top - (bounds.top + 80);
+  positionAnchoredCoachmark(bonusTour.entryTarget, card);
+  const rect = bonusTour.entryTarget.getBoundingClientRect();
+  const focus = bonusTour.entry.querySelector('.initial-onboarding-focus');
+  Object.assign(focus.style, {left:`${rect.left - 7}px`, top:`${rect.top - 7}px`, width:`${rect.width + 14}px`, height:`${rect.height + 14}px`});
+}
+
+function showBonusTourEntry() {
+  bonusTour.layer?.remove();
+  bonusTour.layer = null;
+  clearBonusTourEntry();
+  profileView();
+  openDrawer();
+  drawer.classList.add('is-onboarding-active');
+  const target = drawerContent.querySelector('.account-menu-row');
+  target.dataset.bonusEntry = '';
+  target.classList.add('is-onboarding-target');
+  target.setAttribute('aria-describedby', 'bonusEntryCoachmark');
+  bonusTour.entryTarget = target;
+  const overlay = document.createElement('div');
+  overlay.className = 'initial-onboarding-overlay bonus-entry-overlay';
+  overlay.innerHTML = `<span class="initial-onboarding-scrim" aria-hidden="true"></span><span class="initial-onboarding-focus" aria-hidden="true"></span><aside class="bonus-tour-coachmark" id="bonusEntryCoachmark" role="dialog" aria-label="Guía de bonos">${bonusTourCoachmarkContent(bonusTourSteps[0])}</aside>`;
+  overlay.addEventListener('click', event => { if (event.target.closest('[data-bonus-close]')) finishBonusTour(); });
+  document.body.append(overlay);
+  bonusTour.entry = overlay;
+  requestAnimationFrame(positionBonusTourEntry);
+  window.setTimeout(positionBonusTourEntry, 300);
+}
+
+drawerContent.addEventListener('click', event => {
+  if (bonusTour.entry && event.target.closest('[data-bonus-entry]')) {
+    clearBonusTourEntry();
+    bonusTour.step = 1;
+    openBonusTourPage();
+  }
+});
+
+function openBonusTourPage() {
+  closeDrawer();
   const layer = document.createElement('section');
   layer.className = 'bonus-tour-layer';
   layer.setAttribute('aria-label', 'Recorrido de Mis bonos');
@@ -111,26 +181,25 @@ function startBonusTour() {
   layer.addEventListener('scroll', positionBonusTourFocus, { passive: true });
   layer.addEventListener('click', (event) => {
     if (event.target.closest('[data-bonus-close]')) { finishBonusTour(); return; }
-    if (event.target.closest('[data-bonus-open]') && bonusTour.step === 0) {
+    if (event.target.closest('[data-bonus-open]') && bonusTourSteps[bonusTour.step].target === '[data-bonus-open]') {
       layer.querySelector('.bonus-tour-terms').hidden = false;
       layer.querySelector('[data-bonus-open]').textContent = '− Ver menos';
       layer.querySelector('[data-bonus-open]').setAttribute('aria-expanded', 'true');
-      bonusTour.step = 1;
+      bonusTour.step++;
       renderBonusTourStep();
       return;
     }
-    if (event.target.closest('[data-bonus-activate]') && bonusTour.step === 5) {
+    if (event.target.closest('[data-bonus-activate]') && bonusTourSteps[bonusTour.step].target === '[data-bonus-activate]') {
       const button = layer.querySelector('[data-bonus-activate]');
       button.textContent = 'Activo';
       button.disabled = true;
       layer.querySelector('.bonus-tour-card').classList.add('is-active');
-      bonusTour.step = 6;
-      renderBonusTourStep();
+      finishBonusTour({ completed: true });
       return;
     }
     if (event.target.closest('[data-bonus-prev]') && bonusTour.step > 0) {
       bonusTour.step--;
-      if (bonusTour.step === 0) {
+      if (bonusTour.step <= 2) {
         layer.querySelector('.bonus-tour-terms').hidden = true;
         layer.querySelector('[data-bonus-open]').textContent = '+ Más Información';
         layer.querySelector('[data-bonus-open]').setAttribute('aria-expanded', 'false');
@@ -149,6 +218,6 @@ function startBonusTour() {
 }
 
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && bonusTour.layer) { event.stopImmediatePropagation(); finishBonusTour(); }
+  if (event.key === 'Escape' && (bonusTour.layer || bonusTour.entry)) { event.stopImmediatePropagation(); finishBonusTour(); }
 }, true);
-window.addEventListener('resize', () => { if (bonusTour.layer) requestAnimationFrame(positionBonusTourStep); });
+window.addEventListener('resize', () => { if (bonusTour.layer || bonusTour.entry) requestAnimationFrame(positionBonusTourStep); });

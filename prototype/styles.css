@@ -886,6 +886,20 @@ html.is-initial-onboarding .topbar.is-onboarding-active .avatar{flex-shrink:0}
 /* Los ajustes temporales del cursor no deben cubrir objetivos o navegación de la guía. */
 .club-cursor-tuner{display:none}
 body[data-guide-debug] .club-cursor-tuner{display:grid}
+.initial-onboarding-overlay[data-stage="profile"] .initial-onboarding-coachmark>strong,
+.initial-onboarding-overlay[data-stage="discover"] .initial-onboarding-coachmark>strong,
+.initial-onboarding-overlay[data-stage="summary"] .initial-onboarding-coachmark>strong{margin-top:0}
+.initial-onboarding-overlay[data-stage="summary"] .initial-onboarding-coachmark>strong{padding-right:34px}
+.bonus-entry-overlay .bonus-tour-coachmark{z-index:67}
+body:has(.bonus-entry-overlay) .profile-drawer .account-view{overflow:hidden;touch-action:none}
+.profile-drawer.is-onboarding-active .account-view:after{position:fixed}
+.deposit-flow-layer[data-deposit-screen="methods"]{scroll-padding-top:calc(var(--deposit-methods-coachmark-height,240px) + 72px)}
+.deposit-flow-layer[data-deposit-screen="methods"] .deposit-flow-header{z-index:127}
+.deposit-flow-layer[data-deposit-screen="methods"] .deposit-flow-content{padding-top:var(--deposit-methods-coachmark-height,240px);padding-bottom:100px}
+@media(max-width:768px){
+  .deposit-flow-layer[data-deposit-screen="methods"]{overflow-y:auto!important;touch-action:pan-y!important;overscroll-behavior:contain}
+  .deposit-flow-layer[data-deposit-screen="methods"] .deposit-guide-target{outline:none!important;box-shadow:none!important;animation:none!important;z-index:auto!important}
+}
 @media(min-width:769px) and (max-width:1150px){
   .topbar.is-onboarding-active .main-nav:has(.club.is-onboarding-target){display:flex}
   .topbar.is-onboarding-active .main-nav:has(.club.is-onboarding-target) .nav-link:not(.club){display:none}

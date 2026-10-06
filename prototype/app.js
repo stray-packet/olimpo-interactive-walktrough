@@ -129,13 +129,10 @@ function positionInitialOnboarding() {
   fitGuideCoachmark(initialOnboarding.coachmark);
 }
 
-function setInitialOnboardingCopy({ eyebrow, title, body, progress, summary = false }) {
+function setInitialOnboardingCopy({ title, body, summary = false }) {
   initialOnboarding.overlay.dataset.stage = summary ? 'summary' : initialOnboarding.stage;
   const closeControl = summary ? '<button class="initial-onboarding-close" type="button" aria-label="Cerrar bienvenida">×</button>' : '';
-  const step = summary ? 3 : initialOnboarding.stage === 'discover' ? 2 : 1;
-  const nextLabel = summary ? 'Entendido' : 'Siguiente';
-  const progressControl = `<span class="initial-onboarding-progress">${summary ? 'Paso 3 de 3' : progress}</span>${tourProgressBar(step, 3)}<div class="initial-onboarding-controls"><button data-initial-prev type="button" ${step === 1 ? 'disabled' : ''}>Anterior</button><button class="${summary ? 'initial-onboarding-understood' : ''}" data-initial-next type="button" ${summary ? '' : 'disabled'}>${nextLabel}</button></div>`;
-  initialOnboarding.coachmark.innerHTML = `${closeControl}<span class="initial-onboarding-eyebrow">${eyebrow}</span><strong>${title}</strong><p>${body}</p>${progressControl}`;
+  initialOnboarding.coachmark.innerHTML = `${closeControl}<strong>${title}</strong><p>${body}</p>`;
 }
 
 function startInitialOnboarding() {
@@ -154,7 +151,7 @@ function startInitialOnboarding() {
   initialOnboarding.focus = overlay.querySelector('.initial-onboarding-focus');
   initialOnboarding.pointer = overlay.querySelector('.initial-onboarding-pointer');
   initialOnboarding.coachmark = overlay.querySelector('.initial-onboarding-coachmark');
-  setInitialOnboardingCopy({ eyebrow: 'Bienvenido a Olimpo', title: 'Tu espacio personal', body: 'Abre tu menú de usuario para encontrar ayuda, guías y tu bono inicial de bienvenida.', progress: 'Paso 1 de 3' });
+  setInitialOnboardingCopy({ title: 'Bienvenido a Olimpo', body: 'Antes de comenzar, abre tu menú de usuario para conocer la sección "Descubre Olimpo".' });
   setOnboardingTarget(trigger, 'header');
 }
 
@@ -162,7 +159,7 @@ function advanceInitialOnboardingToDiscover() {
   if (!initialOnboarding.active || initialOnboarding.stage !== 'profile') return;
   initialOnboarding.stage = 'discover';
   const discoverEntry = drawerContent.querySelector('.account-menu-row[data-action="discover"]');
-  setInitialOnboardingCopy({ eyebrow: 'Descubre Olimpo', title: 'Encuentra tus respuestas', body: 'Aquí tendrás guías claras para resolver tus consultas y empezar con confianza.', progress: 'Paso 2 de 3' });
+  setInitialOnboardingCopy({ title: 'Tus primeros pasos', body: 'Aquí encontrarás guías claras antes de empezar a navegar por Olimpo.' });
   setOnboardingTarget(discoverEntry, 'drawer');
 }
 
@@ -170,7 +167,7 @@ function showInitialOnboardingSummary() {
   if (!initialOnboarding.active || initialOnboarding.stage !== 'discover') return;
   initialOnboarding.stage = 'summary';
   const firstSteps = drawerContent.querySelector('.first-steps-card');
-  setInitialOnboardingCopy({ eyebrow: 'Primeros pasos', title: 'Tu bienvenida empieza aquí', body: 'Completa 4 pasos y recibe los puntos necesarios para canjear un bono de S/50 en Club Olimpo.', summary: true });
+  setInitialOnboardingCopy({ title: 'Tu bienvenida empieza aquí', body: 'Completa los 4 tutoriales y recibe un bono de S/50.', summary: true });
   setOnboardingTarget(firstSteps, 'discovery');
   window.requestAnimationFrame(() => {
     firstSteps.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
@@ -469,7 +466,7 @@ function startKycMock() {
   }, 4000);
 }
 
-const depositGuide = { active: false, overlay: null, focus: null, pointer: null, coachmark: null, layer: null, screen: 'entry', amountStage: 'entry', amount: '', selectedMethod: '', amountTimer: null, confirmReady: false };
+const depositGuide = { active: false, overlay: null, focus: null, pointer: null, coachmark: null, layer: null, screen: 'entry', amountStage: 'entry', amount: '', selectedMethod: '', amountTimer: null };
 
 function guideVisibleBounds() {
   const viewport = window.visualViewport;
@@ -584,6 +581,18 @@ function positionAnchoredCoachmark(target, coachmark, { gap = 18, padding = 18 }
 function positionDepositGuide() {
   if (!depositGuide.active) return;
   if (depositGuide.screen !== 'entry') {
+    if (depositGuide.screen === 'methods') {
+      const card = depositGuide.layer?.querySelector('.deposit-flow-coachmark');
+      if (!card) return;
+      const mobile = window.matchMedia('(max-width:768px)').matches;
+      card.style.left = mobile ? '12px' : '24px';
+      card.style.right = mobile ? '12px' : 'auto';
+      card.style.width = mobile ? 'auto' : '340px';
+      card.style.top = `${guideVisibleBounds().top + (mobile ? 72 : 84)}px`;
+      fitGuideCoachmark(card);
+      depositGuide.layer.style.setProperty('--deposit-methods-coachmark-height', `${card.offsetHeight + 24}px`);
+      return;
+    }
     positionAnchoredCoachmark(depositGuide.layer?.querySelector('.deposit-guide-target'), depositGuide.layer?.querySelector('.deposit-flow-coachmark'));
     return;
   }
@@ -635,7 +644,7 @@ function depositAmountScreen() {
   const entryTarget = confirming ? '' : 'deposit-guide-target';
   const submitTarget = confirming ? 'deposit-guide-target' : '';
   const coachmark = confirming
-    ? `<button class="deposit-flow-close" data-deposit-close type="button" aria-label="Cerrar guía">×</button><span>Primer depósito</span><strong>Todo listo para continuar</strong><p>Revisa el monto y pulsa «Ir a depositar».</p><span>Paso 4 de 4</span>${tourProgressBar(4, 4)}${depositCoachmarkControls({ previous: true, next: depositGuide.confirmReady })}`
+    ? `<button class="deposit-flow-close" data-deposit-close type="button" aria-label="Cerrar guía">×</button><span>Primer depósito</span><strong>Todo listo para continuar</strong><p>Revisa el monto y pulsa "Ir a depositar".</p><span>Paso 4 de 4</span>${tourProgressBar(4, 4)}${depositCoachmarkControls({ previous: true, next: false })}`
     : `<button class="deposit-flow-close" data-deposit-close type="button" aria-label="Cerrar guía">×</button><span>Primer depósito</span><strong>Indica cuánto quieres depositar</strong><p>Escribe un monto entre S/5 y S/500, o elige una de las cantidades sugeridas.</p><span>Paso 3 de 4</span>${tourProgressBar(3, 4)}${depositCoachmarkControls({ previous: true, next: valid })}`;
   return `${depositHeader()}<main class="deposit-amount-content"><section class="deposit-amount-card"><h2>Monto a depositar</h2><div class="deposit-amount-entry ${entryTarget}" tabindex="-1"><label class="deposit-amount-field"><span>S/</span><input data-deposit-amount-input inputmode="decimal" autocomplete="off" aria-label="Monto a depositar" placeholder="5.00" value="${depositGuide.amount}"></label><p><b>Min:</b> S/ 5.00 <b>Max:</b> S/ 500.00</p><div class="deposit-presets">${presetButtons}</div></div><button class="deposit-submit ${submitTarget}" data-deposit-complete type="button" ${valid ? '' : 'disabled'}>Ir a depositar</button></section></main><aside class="deposit-flow-coachmark" role="status">${coachmark}</aside>`;
 }
@@ -643,10 +652,15 @@ function depositAmountScreen() {
 function renderDepositFlow(screen) {
   if (!depositGuide.layer) return;
   depositGuide.screen = screen;
+  depositGuide.layer.dataset.depositScreen = screen;
   depositGuide.layer.innerHTML = screen === 'amount' ? depositAmountScreen() : depositMethodsScreen();
   depositGuide.layer.scrollTop = 0;
   requestAnimationFrame(() => {
     const target = depositGuide.layer.querySelector('.deposit-guide-target');
+    if (screen === 'methods') {
+      positionDepositGuide();
+      return;
+    }
     target?.scrollIntoView({ block: 'center', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     requestAnimationFrame(positionDepositGuide);
     const amountInput = depositGuide.screen === 'amount' && depositGuide.amountStage === 'entry' ? depositGuide.layer.querySelector('[data-deposit-amount-input]') : null;
@@ -662,7 +676,7 @@ function setDepositAmount(value, { advance = false } = {}) {
   const submit = depositGuide.layer?.querySelector('[data-deposit-complete]');
   if (submit) submit.disabled = !depositAmountIsValid(cleaned);
   const next = depositGuide.layer?.querySelector('[data-deposit-next]');
-  if (next) next.disabled = !depositAmountIsValid(cleaned);
+  if (next) next.disabled = depositGuide.amountStage === 'confirm' || !depositAmountIsValid(cleaned);
   window.clearTimeout(depositGuide.amountTimer);
   if (!depositAmountIsValid(cleaned)) return;
   if (advance) {
@@ -685,11 +699,9 @@ function openDepositFlow() {
     if (event.target.closest('[data-deposit-back], [data-deposit-prev]')) {
       if (depositGuide.screen === 'amount' && depositGuide.amountStage === 'confirm') {
         depositGuide.amountStage = 'entry';
-        depositGuide.confirmReady = false;
         renderDepositFlow('amount');
       } else if (depositGuide.screen === 'amount') {
         depositGuide.amountStage = 'entry';
-        depositGuide.confirmReady = false;
         renderDepositFlow('methods');
       }
       return;
@@ -698,10 +710,7 @@ function openDepositFlow() {
       if (depositGuide.screen === 'methods') return;
       if (depositGuide.amountStage === 'entry' && depositAmountIsValid(depositGuide.amount)) {
         depositGuide.amountStage = 'confirm';
-        depositGuide.confirmReady = false;
         renderDepositFlow('amount');
-      } else if (depositGuide.amountStage === 'confirm' && depositGuide.confirmReady) {
-        finishDepositGuide({ completed: true });
       }
       return;
     }
@@ -717,8 +726,7 @@ function openDepositFlow() {
     if (preset) { setDepositAmount(Number(preset.dataset.depositPreset).toFixed(2)); return; }
     if (event.target.closest('[data-deposit-complete]')) {
       if (depositGuide.amountStage !== 'confirm') return;
-      depositGuide.confirmReady = true;
-      renderDepositFlow('amount');
+      if (depositAmountIsValid(depositGuide.amount)) finishDepositGuide({ completed: true });
     }
   });
   layer.addEventListener('input', (event) => {
@@ -763,10 +771,9 @@ function startDepositGuide() {
   depositGuide.amountStage = 'entry';
   depositGuide.amount = '';
   depositGuide.selectedMethod = '';
-  depositGuide.confirmReady = false;
   overlay.className = 'initial-onboarding-overlay deposit-guide-overlay';
   overlay.dataset.stage = 'deposit';
-  overlay.innerHTML = '<span class="initial-onboarding-scrim" aria-hidden="true"></span><span class="initial-onboarding-focus" aria-hidden="true"></span><span class="initial-onboarding-pointer" aria-hidden="true"><svg viewBox="0 0 28 34" fill="none"><path d="M5.5 2.5 23.5 19l-8 1.6-3.4 8.9L5.5 2.5Z" fill="#9EE86E" stroke="#0D2B16" stroke-width="2" stroke-linejoin="round"/></svg></span><aside class="initial-onboarding-coachmark" id="depositGuideCoachmark" role="dialog" aria-live="polite" aria-label="Guía para realizar tu primer depósito"><button class="initial-onboarding-close" type="button" aria-label="Cerrar guía">×</button><span class="initial-onboarding-eyebrow">Primer depósito</span><strong>Haz tu primer depósito</strong><p>Pulsa «Deposita» para abrir los medios de pago y continuar con el recorrido.</p><span class="initial-onboarding-progress">Paso 1 de 4</span>' + tourProgressBar(1, 4) + '</aside>';
+  overlay.innerHTML = '<span class="initial-onboarding-scrim" aria-hidden="true"></span><span class="initial-onboarding-focus" aria-hidden="true"></span><span class="initial-onboarding-pointer" aria-hidden="true"><svg viewBox="0 0 28 34" fill="none"><path d="M5.5 2.5 23.5 19l-8 1.6-3.4 8.9L5.5 2.5Z" fill="#9EE86E" stroke="#0D2B16" stroke-width="2" stroke-linejoin="round"/></svg></span><aside class="initial-onboarding-coachmark" id="depositGuideCoachmark" role="dialog" aria-live="polite" aria-label="Guía para realizar tu primer depósito"><button class="initial-onboarding-close" type="button" aria-label="Cerrar guía">×</button><span class="initial-onboarding-eyebrow">Primer depósito</span><strong>Haz tu primer depósito</strong><p>Pulsa el botón "Deposita" para comenzar.</p><span class="initial-onboarding-progress">Paso 1 de 4</span>' + tourProgressBar(1, 4) + '</aside>';
   document.body.append(overlay);
   depositGuide.active = true;
   depositGuide.overlay = overlay;
@@ -931,9 +938,9 @@ const clubNavTrigger = document.querySelector('.topbar .nav-link.club');
 const clubMobileNavTrigger = document.querySelector('.mobile-nav button.club');
 
 const clubOrientationSteps = [
-  { target: '.club-level', title: 'Bienvenido a Club Olimpo', body: 'Aquí encuentras tus puntos, tu progreso de nivel y las recompensas disponibles. Al sumar puntos de nivel, avanzas de Guerrero a Dios y descubres nuevos beneficios.' },
-  { target: '.club-points-summary-target', title: 'Consulta tus puntos', body: 'Aquí ves cuántos puntos canjeables tienes y cuántos están por vencer. Revisa la fecha indicada para aprovecharlos a tiempo.' },
-  { target: '.club-rewards-preview', title: 'Descubre qué puedes canjear', body: 'Explora categorías como tecnología, electrohogar y cuidado personal. Conoce las recompensas que puedes elegir con tus puntos y entra a la tienda para ver más opciones.' }
+  { target: '.club-level', title: 'Bienvenido a Club Olimpo', body: 'Aquí encuentras tu progreso de nivel. ¡Mientras más puntos obtengas, subirás de nivel!' },
+  { target: '.club-points-summary-target', title: 'Gana puntos jugando', body: 'Aquí ves cuántos puntos tienes acumulados y cuántos están por vencer. Revisa la fecha indicada para aprovecharlos a tiempo.' },
+  { target: '.club-rewards-preview', title: 'Descubre qué puedes canjear', body: 'Explora las categorías y conoce las recompensas que puedes recibir con tus puntos.' }
 ];
 
 function clubOrientationCoachmark(step, title, body) {
@@ -1091,7 +1098,7 @@ function startClubOrientationGuide() {
   overlay.dataset.stage = 'club-orientation';
   const mobile = window.matchMedia('(max-width: 768px)').matches;
   clubOrientation.cursorTune = mobile ? { x: 0, y: 0, rotation: 90 } : { x: -58, y: -9, rotation: 59 };
-  overlay.innerHTML = '<span class="initial-onboarding-scrim" aria-hidden="true"></span><span class="initial-onboarding-focus" aria-hidden="true"></span><span class="initial-onboarding-pointer" aria-hidden="true"><svg viewBox="0 0 28 34" fill="none"><path d="M5.5 2.5 23.5 19l-8 1.6-3.4 8.9L5.5 2.5Z" fill="#9EE86E" stroke="#0D2B16" stroke-width="2" stroke-linejoin="round"/></svg></span><aside class="initial-onboarding-coachmark" id="clubOrientationCoachmark" role="dialog" aria-live="polite" aria-label="Guía de Club Olimpo"><button class="initial-onboarding-close" type="button" aria-label="Cerrar guía">×</button><span class="initial-onboarding-eyebrow">Conoce Club Olimpo</span><strong>Entra a Club Olimpo</strong><p>Pulsa «Club Olimpo» en el menú ' + (mobile ? 'inferior' : 'superior') + ' para ver dónde encontrarás tus puntos y recompensas.</p><span class="initial-onboarding-progress">Paso 1 de ' + (clubOrientationSteps.length + 1) + '</span>' + tourProgressBar(1, clubOrientationSteps.length + 1) + '</aside>' + clubCursorTuner();
+  overlay.innerHTML = '<span class="initial-onboarding-scrim" aria-hidden="true"></span><span class="initial-onboarding-focus" aria-hidden="true"></span><span class="initial-onboarding-pointer" aria-hidden="true"><svg viewBox="0 0 28 34" fill="none"><path d="M5.5 2.5 23.5 19l-8 1.6-3.4 8.9L5.5 2.5Z" fill="#9EE86E" stroke="#0D2B16" stroke-width="2" stroke-linejoin="round"/></svg></span><aside class="initial-onboarding-coachmark" id="clubOrientationCoachmark" role="dialog" aria-live="polite" aria-label="Guía de Club Olimpo"><button class="initial-onboarding-close" type="button" aria-label="Cerrar guía">×</button><span class="initial-onboarding-eyebrow">Conoce Club Olimpo</span><strong>Ingresa a Club Olimpo</strong><p>Pulsa el botón para conocer Club Olimpo, el programa de lealtad de Olimpo.bet que premia tu fidelidad.</p><span class="initial-onboarding-progress">Paso 1 de ' + (clubOrientationSteps.length + 1) + '</span>' + tourProgressBar(1, clubOrientationSteps.length + 1) + '</aside>' + clubCursorTuner();
   document.body.append(overlay);
   clubOrientation.overlay = overlay;
   clubOrientation.focus = overlay.querySelector('.initial-onboarding-focus');
@@ -1329,7 +1336,7 @@ document.addEventListener('pointerdown', (event) => {
     if (initialOnboarding.stage === 'discover') {
       closeDrawer();
       initialOnboarding.stage = 'profile';
-      setInitialOnboardingCopy({ eyebrow: 'Bienvenido a Olimpo', title: 'Tu espacio personal', body: 'Abre tu menú de usuario para encontrar ayuda, guías y tu bono inicial de bienvenida.', progress: 'Paso 1 de 3' });
+      setInitialOnboardingCopy({ title: 'Bienvenido a Olimpo', body: 'Antes de comenzar, abre tu menú de usuario para conocer la sección "Descubre Olimpo".' });
       setOnboardingTarget(trigger, 'header');
     } else if (initialOnboarding.stage === 'summary') {
       profileView();

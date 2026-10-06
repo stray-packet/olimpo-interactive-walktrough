@@ -112,6 +112,16 @@ La caja geométrica del marco de orientación Club se expande ahora `7 px` por l
 
 Siguen siendo específicas de cada contexto la ubicación del coach mark, los punteros, la opacidad del scrim y el fondo original del elemento resaltado. Por eso el recorrido de Bonos conserva su capa `.42`, y Club/depósito sus capas de oscurecimiento de `.68`; no se dedujo un nuevo valor de scrim porque el ajuste elegido no especificaba uno.
 
+## Actualización de textos y navegación — 2026-10-05
+
+La bienvenida inicial conserva tres pasos y muestra únicamente título y texto, sin etiqueta común, número de paso, barra de progreso ni botones Anterior/Siguiente. Los dos primeros pasos avanzan mediante el objetivo resaltado; el resumen conserva su X para cerrar. El texto final indica completar los cuatro tutoriales para recibir un bono de S/50.
+
+Bonos incorpora dos pasos al inicio: abrir Mis bonos desde el menú de usuario y presentar la tarjeta completa del bono de prueba. El recorrido pasa a diez pasos, con diez segmentos de progreso en una sola línea. Las restricciones preceden a la advertencia sobre retiros, luego se explica el límite de un bono activo y finalmente se solicita Activar. Pulsar Activar completa el tutorial directamente. El menú de entrada bloquea el desplazamiento manual para mantener el objetivo alineado.
+
+Se actualizaron los cuatro textos de orientación Club, con el mismo texto de entrada para web y mobile. En depósito se actualizaron las instrucciones de entrada y confirmación. En mobile, la selección del medio de pago permite desplazamiento táctil, mantiene fijo el coach mark y elimina el borde/glow contextual de la colección. Se reserva espacio sobre los medios para evitar que el coach mark cubra opciones en ambos dispositivos. El último Siguiente permanece deshabilitado, incluso al editar el monto: Ir a depositar completa el flujo directamente. Los textos de canje se mantienen para una revisión posterior.
+
+Validación de estos cambios: 184 comprobaciones sin fallos en Chromium y WebKit, usando 390×480, 390×640, 1024×600 y 1366×768. Se recorrieron onboarding, los diez pasos de Bonos (incluido regresar al menú), orientación Club y depósito mediante clics, comprobando encuadre, controles habilitados y finalización. Comprobaciones adicionales verificaron la máscara fija del menú, los diez segmentos en una fila, el ancho del highlight del bono y el bloqueo de Siguiente después de editar el monto final. Se comprobó desplazamiento real mediante rueda y gesto táctil simulado en Chromium. El laboratorio refleja los textos actualizados; JavaScript y diff revisados. Estas pruebas usan motores de navegador locales, sin validación en un teléfono físico.
+
 ## Corrección y validación de visibilidad — 2026-10-05
 
 Corrección adicional del primer paso: iniciar la guía con la página previamente desplazada dejaba el avatar fuera del viewport al bloquear el scroll. Se reprodujo con WebKit: tras desplazar 500 px, el avatar quedaba en `top: -488 px`. Ahora la guía vuelve al inicio antes del bloqueo y fija el encabezado al área de `visualViewport`, actualizándolo cuando cambia su offset. Validación: ocho recorridos táctiles completos (Chromium/WebKit, 320×480 y 390×844, área visible normal y desplazada), pulsando avatar, entrada Descubre Olimpo y Entendido. Todos pasaron y el objetivo inicial quedó visible y pulsable.
