@@ -891,6 +891,17 @@ body[data-guide-debug] .club-cursor-tuner{display:grid}
 .initial-onboarding-overlay[data-stage="summary"] .initial-onboarding-coachmark>strong{margin-top:0}
 .initial-onboarding-overlay[data-stage="summary"] .initial-onboarding-coachmark>strong{padding-right:34px}
 .bonus-entry-overlay .bonus-tour-coachmark{z-index:67}
+.club-level-timeline{width:100%;overflow:hidden}
+@media(max-width:768px){
+  .club-level-timeline-content{width:552px}
+  .club-level-timeline .club-level-track{width:460px;margin:26px 20px 5px}
+  .club-level-timeline .club-level-labels{width:552px;grid-template-columns:repeat(6,92px);margin:0 0 20px -16px}
+  .club-level-timeline .club-level-labels span{font-size:12px;line-height:18px;overflow-wrap:normal;white-space:nowrap}
+  .club-level-timeline .club-level-labels b{font-size:12px;line-height:18px}
+  .club-level>p{font-size:10px;line-height:16px;padding:8px 12px;white-space:nowrap}
+  .club-orientation-layer .club-level.club-guide-target{width:calc(100% + 40px)}
+  .deposit-guide-overlay .initial-onboarding-pointer{width:36px;height:36px;animation:none}
+}
 .initial-onboarding-controls [data-initial-prev],
 .bonus-tour-controls [data-bonus-prev],
 .deposit-flow-controls [data-deposit-prev],
