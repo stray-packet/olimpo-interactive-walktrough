@@ -164,6 +164,7 @@ function advanceInitialOnboardingToDiscover() {
 }
 
 function showInitialOnboardingSummary() {
+  if (initialOnboarding.stage === 'summary') return;
   if (!initialOnboarding.active || initialOnboarding.stage !== 'discover') return;
   initialOnboarding.stage = 'summary';
   const firstSteps = drawerContent.querySelector('.first-steps-card');
@@ -184,8 +185,6 @@ function restartInitialOnboardingCountdown() {
   bar?.animate([{ width: '0%' }, { width: '100%' }], { duration: 4000, fill: 'forwards', easing: 'linear' });
   initialOnboarding.dismissTimer = window.setTimeout(finishInitialOnboarding, 4000);
 }
-document.addEventListener('pointerdown', restartInitialOnboardingCountdown, { capture: true });
-document.addEventListener('keydown', restartInitialOnboardingCountdown, { capture: true });
 
 function finishInitialOnboarding() {
   if (!initialOnboarding.active) return;
@@ -398,16 +397,20 @@ function initDiscoveryTuner() {
 function discoveryView({ animate = true } = {}) {
   const count = firstStepsCompletedCount();
   const completed = count === onboardingTaskOrder.length;
-  const benefit = completed
+  const redeemed = sessionStorage.getItem('olimpo-bono-canjeado') === 'true';
+  const benefit = redeemed ? '¡Onboarding completado! Canjeaste tu bono de S/50.' : completed
     ? '¡Onboarding completado! Ya puedes canjear tu bono de S/50.'
     : '¡Completa los 4 pasos y canjea un bono de S/50!';
   const tasks = onboardingTaskOrder.map(onboardingTask).join('');
-  const rewardAction = completed
+  const rewardAction = redeemed
+    ? '<button class="first-steps-reward-cta" data-action="bonuses" type="button">Ir a mis bonos</button>'
+    : completed
     ? '<button class="first-steps-reward-cta" data-action="club-redemption" type="button">¡Ir a canjear!</button>'
     : '<button class="first-steps-reward-cta" type="button" disabled>Completa los 4 pasos</button>';
   const chest = completed ? 'canjea-bono-cofre-abierto.png' : 'canjea-bono-cofre-cerrado.png';
+  const rewardVerb = redeemed ? 'Canjeaste un' : 'Canjea un';
 
-  drawerContent.innerHTML = `<section class="discovery-view"><header class="discovery-header"><button class="drawer-close discovery-back" data-action="profile" type="button" aria-label="Volver a Mi cuenta"><svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none" aria-hidden="true"><path d="M6 11L1 6L6 0.999999" stroke="#F9FAFB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><h2>Descubre Olimpo</h2><span class="discovery-light" aria-hidden="true"></span></header><div class="discovery-scroll"><section class="task-category task-category--first"><div class="first-steps-card"><div class="first-steps-header"><div class="first-steps-copy"><p class="first-steps-benefit">${benefit}</p></div></div><div class="task-journey"><div class="task-list">${tasks}</div><div class="reward-node${completed ? ' is-ready' : ''}"><div class="reward-node-content"><img class="reward-node-chest" src="assets/imgs/${chest}" alt="${completed ? 'Cofre abierto: tu bono está listo para canjear' : 'Cofre cerrado: completa los 4 pasos para desbloquearlo'}"/><div class="reward-node-copy"><span>Canjea un</span><strong>bono de S/50</strong></div>${rewardAction}</div></div></div></div></section></div></section>`;
+  drawerContent.innerHTML = `<section class="discovery-view"><header class="discovery-header"><button class="drawer-close discovery-back" data-action="profile" type="button" aria-label="Volver a Mi cuenta"><svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none" aria-hidden="true"><path d="M6 11L1 6L6 0.999999" stroke="#F9FAFB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><h2>Descubre Olimpo</h2><span class="discovery-light" aria-hidden="true"></span></header><div class="discovery-scroll"><section class="task-category task-category--first"><div class="first-steps-card"><div class="first-steps-header"><div class="first-steps-copy"><p class="first-steps-benefit">${benefit}</p></div></div><div class="task-journey"><div class="task-list">${tasks}</div><div class="reward-node${completed ? ' is-ready' : ''}"><div class="reward-node-content"><img class="reward-node-chest" src="assets/imgs/${chest}" alt="${completed ? 'Cofre abierto: tu bono está listo para canjear' : 'Cofre cerrado: completa los 4 pasos para desbloquearlo'}"/><div class="reward-node-copy"><span>${rewardVerb}</span><strong>bono de S/50</strong></div>${rewardAction}</div></div></div></div></section></div></section>`;
   const discovery = drawerContent.firstElementChild;
   profileView();
   drawerContent.append(discovery);
@@ -856,7 +859,8 @@ function clubJourneyTune(stepIndex) {
   if (!clubJourney.cursorTunes[key]) {
     let saved;
     try { saved = JSON.parse(localStorage.getItem('olimpo-canje-flecha-' + key)); } catch {}
-    clubJourney.cursorTunes[key] = { x: 0, y: 0, rotation: null, flip: true, ...saved };
+    const defaults = stepIndex === 4 ? (clubJourneyDevice() === 'mobile' ? { x: -82, y: 67, rotation: 360 } : { x: 74, y: 30, rotation: 347 }) : { x: 0, y: 0, rotation: null };
+    clubJourney.cursorTunes[key] = { ...defaults, flip: true, ...(stepIndex === 4 ? {} : saved) };
   }
   return clubJourney.cursorTunes[key];
 }
@@ -912,11 +916,15 @@ function positionClubJourneyCoachmark(target, coachmark) {
     const mobile = window.matchMedia('(max-width:768px)').matches;
     Object.assign(coachmark.style, { width: `${mobile ? bounds.width - 24 : 340}px`, left: `${mobile ? bounds.left + 12 : bounds.right - 364}px`, right: 'auto', bottom: 'auto', top: `${bounds.top + (mobile ? 84 : 96)}px` });
     fitGuideCoachmark(coachmark);
+    if (!mobile) {
+      coachmark.style.top = `${bounds.bottom - coachmark.offsetHeight - 12}px`;
+      coachmark.style.left = `${bounds.left + (bounds.width - coachmark.offsetWidth) / 2}px`;
+    }
     clubJourney.layer.style.setProperty('--club-terms-coachmark-height', `${coachmark.offsetHeight}px`);
     const detail = clubJourney.layer.querySelector('.club-ticket-detail--image');
     if (detail) {
       const availableHeight = bounds.height - coachmark.offsetHeight - 176;
-      const width = mobile ? Math.min(bounds.width - 32, 344, availableHeight >= 400 ? availableHeight * 344 / 680 : 312) : Math.min(1028, bounds.width - 424);
+      const width = mobile ? Math.min(bounds.width - 32, 344, availableHeight >= 400 ? availableHeight * 344 / 687 : 312) : Math.min(1028, bounds.width - 48, Math.max(220, bounds.height - coachmark.offsetHeight - 108) * 2058 / 939);
       detail.style.width = width + 'px';
     }
     return;
@@ -1253,11 +1261,11 @@ function clubMarketplaceScreen({ guide = true } = {}) {
 }
 
 function clubTermsScreen() {
-  return `${clubMarketplaceScreen({ guide: false })}<div class="club-confirmation-layer club-terms-layer"><section class="club-ticket-detail club-ticket-detail--image" role="dialog" aria-modal="true" aria-label="Términos y condiciones del bono"><div class="club-ticket-detail-layout club-terms-image-layout"><picture><source media="(max-width:768px)" srcset="assets/imgs/club-olimpo/canje/terminos-mobile.png"><img src="assets/imgs/club-olimpo/canje/terminos-web.png" alt="Detalle del bono de casino en vivo, términos y condiciones y botón Canjear por 5,000 puntos"></picture><button class="club-detail-redeem-hotspot" data-club-next="success" type="button" aria-label="Canjear bono por 5,000 puntos"></button><button class="club-terms-image-close" data-club-close type="button" aria-label="Cerrar detalle del bono"></button></div></section></div>`;
+  return `${clubMarketplaceScreen({ guide: false })}<div class="club-confirmation-layer club-terms-layer"><section class="club-ticket-detail club-ticket-detail--image" role="dialog" aria-modal="true" aria-label="Términos y condiciones del bono"><div class="club-ticket-detail-layout club-terms-image-layout"><picture><source media="(max-width:768px)" srcset="assets/imgs/club-olimpo/canje/terminos-mobile-transparent.png"><img src="assets/imgs/club-olimpo/canje/terminos-web-transparent.png" alt="Detalle del bono de casino en vivo, términos y condiciones y botón Canjear por 5,000 puntos"></picture><button class="club-detail-redeem-hotspot" data-club-next="success" type="button" aria-label="Canjear bono por 5,000 puntos"></button><button class="club-terms-image-close" data-club-close type="button" aria-label="Cerrar detalle del bono"></button></div></section></div>`;
 }
 
 function clubSuccessScreen() {
-  return `${clubMarketplaceScreen({ guide: false })}<div class="club-confirmation-layer club-success-layer"><section class="club-success-modal" role="dialog" aria-modal="true" aria-label="Confirmación del canje"><picture><source media="(max-width:768px)" srcset="assets/imgs/club-olimpo/canje/confirmacion-mobile.png"><img src="assets/imgs/club-olimpo/canje/confirmacion-web.png" alt="¡Felicidades, canjeaste tu bono! Ve a la sección de Mis bonos, actívalo y empieza a jugar."></picture><button data-club-close class="club-success-hotspot club-success-hotspot--bonuses" type="button" aria-label="Ir a Mis bonos"></button></section></div>`;
+  return `${clubMarketplaceScreen({ guide: false })}<div class="club-confirmation-layer club-success-layer"><section class="club-success-modal" role="dialog" aria-modal="true" aria-label="Confirmación del canje"><picture><source media="(max-width:768px)" srcset="assets/imgs/club-olimpo/canje/confirmacion-mobile.png"><img src="assets/imgs/club-olimpo/canje/confirmacion-web.png" alt="¡Felicidades, canjeaste tu bono! Ve a la sección de Mis bonos, actívalo y empieza a jugar."></picture><button data-club-show-bonuses class="club-success-hotspot club-success-hotspot--bonuses" type="button" aria-label="Ir a Mis bonos"></button></section></div>`;
 }
 
 function renderClubJourney(stepIndex = clubJourney.step) {
@@ -1267,6 +1275,7 @@ function renderClubJourney(stepIndex = clubJourney.step) {
   const previousScreen = clubJourney.layer.dataset.clubScreen;
   const persistentCoachmark = clubJourney.layer.querySelector('#clubJourneyCoachmark');
   const persistentFocus = clubJourney.layer.querySelector('.club-journey-focus');
+  const travelOrigins = [persistentCoachmark, persistentFocus].map(element => element ? { element, left: element.style.left, top: element.style.top, width: element.style.width, height: element.style.height } : null).filter(Boolean);
   clubJourney.step = stepIndex;
   const step = clubRedemptionSteps[stepIndex];
   const screens = { home: clubHomeScreen, portal: clubPortalScreen, marketplace: clubMarketplaceScreen, terms: clubTermsScreen, success: clubSuccessScreen };
@@ -1279,7 +1288,7 @@ function renderClubJourney(stepIndex = clubJourney.step) {
   if (persistentFocus && step.screen !== 'success') clubJourney.layer.append(persistentFocus);
   if (previousScreen !== step.screen) clubJourney.layer.scrollTop = 0;
   if (stepIndex === 0) animateClubJourneyPoints();
-  if (step.screen === 'success') return;
+  if (step.screen === 'success') { sessionStorage.setItem('olimpo-bono-canjeado', 'true'); return; }
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   clubJourney.timer = window.setTimeout(() => {
     if (!clubJourney.layer || clubJourney.step !== stepIndex) return;
@@ -1307,6 +1316,11 @@ function renderClubJourney(stepIndex = clubJourney.step) {
       positionClubJourneyUI();
       if (step.screen === 'terms') target.scrollIntoView({ block: 'nearest', behavior: 'auto' });
       if (step.screen !== 'terms') target.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
+      if (!reduceMotion) travelOrigins.forEach(({ element, ...origin }) => {
+        const destination = Object.fromEntries(Object.keys(origin).filter(key => origin[key] && element.style[key]).map(key => [key, element.style[key]]));
+        const start = Object.fromEntries(Object.keys(destination).map(key => [key, origin[key]]));
+        element.animate([start, destination], { duration: 520, easing: 'cubic-bezier(.22,1,.36,1)' });
+      });
       window.setTimeout(() => {
         positionClubJourneyUI();
         target.focus({ preventScroll: true });
@@ -1341,6 +1355,7 @@ function startClubRedemptionJourney() {
   layer.className = 'club-prototype-layer club-redemption-layer';
   layer.setAttribute('aria-label', 'Recorrido de canje en Club Olimpo');
   layer.addEventListener('click', (event) => {
+    if (event.target.closest('[data-club-show-bonuses]')) { closeClubJourney(); showRedeemedBonuses(); return; }
     if (event.target.closest('[data-club-close]')) { closeClubJourney(); return; }
     if (event.target.closest('[data-club-journey-prev]')) { advanceClubJourney(-1); return; }
     if (event.target.closest('[data-club-journey-next]')) { advanceClubJourney(1); return; }
@@ -1498,6 +1513,7 @@ drawerContent.addEventListener('click', (event) => {
   if (guideId) { if (guideId === 'bonuses') startBonusTour(); else if (guideId === 'club') startClubOrientationGuide(); else guideView(guideId); return; }
   if (startDeposit) { startDepositGuide(); return; }
   if (action === 'club-redemption') { startClubRedemptionJourney(); return; }
+  if (action === 'bonuses') { showRedeemedBonuses(); return; }
   if (previous) { guideView(previous.dataset.guidePrev, Number(previous.dataset.step) - 1); return; }
   if (next) { const id = next.dataset.guideNext; const nextStep = Number(next.dataset.step) + 1; if (nextStep >= guides[id].steps.length) { if (id === 'kyc') startKycMock(); else { completeGuide(id); discoveryView({ animate: false }); } } else guideView(id, nextStep); }
   const profileOption = event.target.closest('.profile-option:not([data-action])');

@@ -982,3 +982,24 @@ body:has(.bonus-entry-overlay) .profile-drawer .account-view{overflow:hidden;tou
   .club-redemption-layer[data-club-screen="terms"] .club-terms-image-layout .club-detail-redeem-hotspot.club-guide-target{left:8.72%;top:69.7%;width:82.56%;height:5.89%}
   .club-terms-image-close{display:none}
 }
+
+/* Texto nítido y una única animación flotante para los punteros de las guías. */
+.initial-onboarding-coachmark,.bonus-tour-coachmark,.club-prototype-coachmark,.deposit-flow-coachmark{background:#121212!important;filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+@keyframes shared-guide-pointer-float{0%,100%{translate:0 0}50%{translate:-3px -4px}}
+.initial-onboarding-pointer,.club-coachmark-pointer{animation:shared-guide-pointer-float 1.35s ease-in-out infinite!important}
+.initial-onboarding-overlay[data-stage="discover"] .initial-onboarding-pointer{transform:scaleX(-1)}
+@media(prefers-reduced-motion:reduce){.initial-onboarding-pointer,.club-coachmark-pointer{animation:none!important}}
+.club-orientation-layer .club-level.club-guide-target{padding:16px 10px;margin:-16px -10px}
+.club-redemption-layer[data-club-screen="terms"] .club-terms-layer{padding:84px 24px 24px;justify-items:center}
+.club-redemption-layer[data-club-screen="terms"] .club-ticket-detail--image{margin-inline:auto}
+@media(max-width:768px){
+  .club-level>p{font-size:14px;line-height:20px;white-space:normal}
+  .club-orientation-layer .club-level.club-guide-target{width:calc(100% + 20px)}
+  .profile-drawer .reward-node-content .reward-node-copy{display:flex;gap:4px;white-space:nowrap;flex-wrap:nowrap;font-size:14px;line-height:20px}
+  .profile-drawer .reward-node-content .reward-node-copy span,.profile-drawer .reward-node-content .reward-node-copy strong{font-size:14px;line-height:20px;white-space:nowrap}
+  .club-redemption-layer[data-club-screen="terms"] .club-terms-layer{padding:calc(var(--club-terms-coachmark-height,140px) + 100px) 16px 76px}
+}
+@media(max-width:360px){
+  .profile-drawer .reward-node-content{grid-template-columns:56px minmax(0,1fr);column-gap:8px}
+  .profile-drawer .reward-node-content .reward-node-chest{width:56px;height:56px}
+}

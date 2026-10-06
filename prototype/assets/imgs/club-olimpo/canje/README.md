@@ -6,6 +6,8 @@
 Se seleccionan con `<picture>` en `clubSuccessScreen()`. Cada imagen contiene un único botón «Ir a mis bonos»; el botón HTML transparente conserva la interacción y el nombre accesible.
 
 - `terminos-web.png`: detalle de términos original entregado por el usuario (2058 × 939 px).
-- `terminos-mobile.png`: detalle de términos original entregado por el usuario (344 × 680 px).
+- `terminos-mobile.png`: detalle de términos original entregado por el usuario (344 × 687 px).
 
 Se seleccionan con `<picture>` en `clubTermsScreen()` para el paso 5. Se utiliza la imagen completa, con un botón HTML transparente sobre Canjear y otro sobre la X de la imagen web. Los textos y la barra de desplazamiento dibujada forman parte del bitmap; el contenedor completo permite desplazamiento en pantallas de poca altura. El coach mark y la flecha siguen siendo elementos HTML independientes.
+
+Las variantes activas son `terminos-web-transparent.png` y `terminos-mobile-transparent.png`. Conservan las dimensiones y los píxeles de color originales; únicamente los píxeles negros del fondo exterior conectado a los bordes pasan a transparentes. Los originales se conservan como referencia. Los porcentajes de los botones superpuestos siguen coincidiendo con la imagen original.

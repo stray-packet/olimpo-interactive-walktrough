@@ -134,6 +134,12 @@ Validación de estos cambios: 184 comprobaciones sin fallos en Chromium y WebKit
 
 ## Corrección y validación de visibilidad — 2026-10-05
 
+Nueva revisión: el contador de bienvenida se inicia una sola vez al entrar al tercer paso y termina a los cuatro segundos; pulsaciones posteriores no lo reinician. Todos los coach marks tienen fondo opaco y filtros de desenfoque desactivados, incluido depósito y canje mobile. Todas las flechas visibles comparten la animación flotante de 1.35 s y desplazamiento de −3/−4 px, conservando su rotación y flip; se respeta reducir movimiento.
+
+El texto junto al cofre se mantiene en una línea mobile. Tras canjear se muestra «Canjeaste un bono de S/50» e «Ir a mis bonos», que abre la vista sin tutorial. El estado de canje se conserva en la sesión. El texto de puntos necesarios de Club pasa a 14/20 px y el padding horizontal del objetivo de nivel baja de 20 a 10 px por lado. El canje anima explícitamente el desplazamiento entre las posiciones anterior y siguiente del coach mark y highlight durante 520 ms con la curva común, incluso al reconstruir una pantalla.
+
+El detalle del paso 5 web se centra horizontalmente y ajusta su tamaño para dejar visible el coach mark debajo. Web y mobile usan variantes con fondo exterior transparente, sin modificar los colores y textos originales. Flecha del paso 5 web: X 74, Y 30, rotación 347°; mobile: X −82, Y 67, rotación 360°. El panel del paso 5 conserva los ajustes interactivos.
+
 Actualización posterior: los coach marks de orientación Club usan fondo opaco y no aplican `filter` ni `backdrop-filter`, eliminando el desenfoque observado en los pasos 2 y 3. El resumen del onboarding inicial incorpora una barra de carga de cuatro segundos; al completar ese tiempo sin interacción se cierra la guía y se libera el desplazamiento. Una pulsación o tecla reinicia el contador; cerrar manualmente cancela el temporizador.
 
 El paso 5 del canje utiliza las imágenes originales `club-olimpo/canje/terminos-web.png` y `terminos-mobile.png`. Canjear conserva su interacción mediante un botón transparente sobre el botón dibujado; la X web también es interactiva. El contenedor de la imagen permite desplazamiento cuando la altura disponible es reducida. El coach mark permanece fijo y la flecha sigue apuntando al botón. La barra de desplazamiento y los términos dentro de la imagen son parte del bitmap recibido.

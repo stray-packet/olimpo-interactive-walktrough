@@ -1,5 +1,28 @@
 const bonusTour = { layer: null, entry: null, entryTarget: null, step: 0 };
 
+function showRedeemedBonuses() {
+  closeDrawer();
+  const layer = document.createElement('section');
+  layer.className = 'bonus-tour-layer';
+  layer.setAttribute('aria-label', 'Mis bonos');
+  layer.innerHTML = bonusTourMarkup();
+  layer.querySelectorAll('.bonus-tour-scrim,.bonus-tour-focus,.bonus-tour-coachmark').forEach(element => element.remove());
+  layer.insertAdjacentHTML('beforeend', '<button class="bonus-tour-close" data-redeemed-close type="button" aria-label="Cerrar Mis bonos">×</button>');
+  layer.addEventListener('click', event => {
+    if (event.target.closest('[data-redeemed-close]')) { layer.remove(); discoveryView({ animate: false }); openDrawer(); }
+    const detailsButton = event.target.closest('[data-bonus-open]');
+    if (detailsButton) {
+      const terms = layer.querySelector('.bonus-tour-terms');
+      terms.hidden = !terms.hidden;
+      detailsButton.textContent = terms.hidden ? '+ Más Información' : '− Ver menos';
+      detailsButton.setAttribute('aria-expanded', String(!terms.hidden));
+    }
+    const activate = event.target.closest('[data-bonus-activate]');
+    if (activate) { activate.textContent = 'Activo'; activate.disabled = true; }
+  });
+  document.body.append(layer);
+}
+
 const bonusTourSteps = [
   { target: '[data-bonus-entry]', title: 'Entra a Mis bonos', body: 'Pulsa "Mis bonos" en tu menú de usuario para conocer tus bonos.', action: true },
   { target: '.bonus-tour-example', title: 'Conoce este bono de prueba', body: 'Este bono de prueba te permitirá conocer sus reglas y cómo activarlo durante el tutorial.' },
