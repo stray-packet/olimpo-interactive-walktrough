@@ -585,7 +585,7 @@ function positionDepositGuide() {
       const card = depositGuide.layer?.querySelector('.deposit-flow-coachmark');
       if (!card) return;
       const mobile = window.matchMedia('(max-width:768px)').matches;
-      card.style.left = mobile ? '12px' : '24px';
+      card.style.left = `${guideVisibleBounds().left + (guideVisibleBounds().width - (mobile ? guideVisibleBounds().width - 24 : 340)) / 2}px`;
       card.style.right = mobile ? '12px' : 'auto';
       card.style.width = mobile ? 'auto' : '340px';
       card.style.top = `${guideVisibleBounds().top + (mobile ? 72 : 84)}px`;
@@ -625,7 +625,7 @@ const depositMethods = [
 
 function depositMethodsScreen() {
   const cards = depositMethods.map(([name, range, asset, raffle]) => `<button class="deposit-method-card" data-deposit-method="${asset}" type="button"><img class="deposit-method-logo" src="https://www.olimpo.bet/static/img/retiros/metodos/${asset}.webp" alt="${name}"><span><strong>${name}</strong><small>${range}</small></span>${raffle ? '<em>Sorteo <img src="https://www.olimpo.bet/assets/img/deposit/giveaway.svg" alt=""></em>' : ''}<b>›</b></button>`).join('');
-  return `${depositHeader()}<main class="deposit-flow-content"><h2>Todos los medios de pago</h2><div class="deposit-method-grid deposit-guide-target" tabindex="-1" aria-label="Elige cualquiera de los medios de pago disponibles">${cards}</div></main><aside class="deposit-flow-coachmark" role="status"><button class="deposit-flow-close" data-deposit-close type="button" aria-label="Cerrar guía">×</button><span>Primer depósito</span><strong>Elige el medio de pago</strong><p>Selecciona el medio que se te acomode mejor.</p><span>Paso 2 de 4</span>${tourProgressBar(2, 4)}${depositCoachmarkControls({ previous: false, next: false })}</aside>`;
+  return `${depositHeader()}<main class="deposit-flow-content"><h2>Todos los medios de pago</h2><div class="deposit-method-grid deposit-guide-target" tabindex="-1" aria-label="Elige cualquiera de los medios de pago disponibles">${cards}</div></main><aside class="deposit-flow-coachmark" role="status"><button class="deposit-flow-close" data-deposit-close type="button" aria-label="Cerrar guía">×</button><span>Primer depósito</span><strong>Elige el medio de pago</strong><p>Selecciona el medio que se te acomode mejor.</p><span>Paso 2 de 4</span>${tourProgressBar(2, 4)}${depositCoachmarkControls({ previous: true, next: false })}</aside>`;
 }
 
 function depositCoachmarkControls({ previous = false, next = false } = {}) {
@@ -703,6 +703,9 @@ function openDepositFlow() {
       } else if (depositGuide.screen === 'amount') {
         depositGuide.amountStage = 'entry';
         renderDepositFlow('methods');
+      } else if (depositGuide.screen === 'methods') {
+        finishDepositGuide();
+        window.setTimeout(startDepositGuide, 260);
       }
       return;
     }
@@ -798,7 +801,7 @@ function clubHeader(active = '', mode = 'store') {
   if (mode === 'main') {
     return `<header class="club-main-header"><img src="https://www.olimpo.bet/static/img/isotipo_olimpo_pe.svg" alt="Olimpo.bet"><nav aria-label="Navegación principal"><button type="button">Inicio</button><button type="button">Deportes</button><button class="is-active club-olimpo-link" type="button">Club Olimpo<svg class="club-olimpo-badge" width="19" height="18" viewBox="0 0 19 18" fill="none" aria-hidden="true"><rect x=".5" width="18" height="18" rx="9" fill="url(#clubBadgeGradient)"/><path d="M14.345 6.802h-2.871c-.125 0-.195-.145-.118-.243l2.668-3.371c.06-.077.006-.188-.09-.188H8.396a.12.12 0 0 0-.1.058L4.555 9.52c-.045.076.01.173.1.173h2.326a.12.12 0 0 1 .145.186l-1.244 4.977c-.028.113.108.192.192.111l8.35-7.967c.075-.071.025-.198-.079-.198Z" fill="#111"/><defs><linearGradient id="clubBadgeGradient" x1="2.9" y1="2.4" x2="15.5" y2="18" gradientUnits="userSpaceOnUse"><stop stop-color="#BEA571"/><stop offset=".22" stop-color="#FFE4AD"/><stop offset=".54" stop-color="#FDCE6F"/><stop offset="1" stop-color="#836724"/></linearGradient></defs></svg></button><button type="button">Casino</button><button type="button">Casino en vivo</button><button type="button">Virtuales</button><button type="button">Misiones</button><button type="button">Promociones</button><button type="button">Blog</button><button type="button">Ayuda</button></nav><div><button type="button">Deposita</button><span>S/ 3.50⌄</span><b>E<em>6</em></b></div></header>`;
   }
-  return `<header class="club-prototype-header"><img src="https://d3ekkuiebeebts.cloudfront.net/public/web/img/logo-olimpo.svg" alt="Olimpo.bet"><nav aria-label="Navegación de Club Olimpo"><button class="${active === 'products' ? 'is-active' : ''}" type="button">Productos</button><button class="${active === 'experiences' ? 'is-active' : ''}" type="button">Experiencias</button><button class="${active === 'bonuses' ? 'is-active' : ''}" type="button">Bonos</button></nav><div class="club-prototype-user"><img src="https://d3ekkuiebeebts.cloudfront.net/public/web/img/user-rtb.svg" alt=""><small>Hola<br><b>USUARIO</b></small><strong><img src="https://s3.amazonaws.com/bucket.olimpo.prd/public/web/img/coin.svg" alt="">${clubPoints}</strong></div></header>`;
+  return `<header class="club-prototype-header"><img src="https://d3ekkuiebeebts.cloudfront.net/public/web/img/logo-olimpo.svg" alt="Olimpo.bet"><nav aria-label="Navegación de Club Olimpo"><button class="${active === 'products' ? 'is-active' : ''}" type="button">Productos</button><button class="${active === 'experiences' ? 'is-active' : ''}" type="button">Experiencias</button><button class="${active === 'bonuses' ? 'is-active' : ''}" type="button">Bonos</button></nav><div class="club-prototype-user"><img src="https://d3ekkuiebeebts.cloudfront.net/public/web/img/user-rtb.svg" alt=""><small>Hola<br><b>USUARIO</b></small><strong><img src="https://s3.amazonaws.com/bucket.olimpo.prd/public/web/img/coin.svg" alt=""><span data-club-points>${clubPoints}</span></strong></div></header>`;
 }
 
 function clubMobileNavMarkup() {
@@ -812,20 +815,55 @@ function tourProgressBar(current, total) {
 
 const clubRedemptionSteps = [
   { screen: 'home', target: '.club-points-summary-target h2', title: 'Tus puntos canjeables', body: 'Tienes 5,000 puntos canjeables. Los usaremos para canjear tu primer bono.' },
-  { screen: 'home', target: '.club-redemption-target', title: 'Entra a la tienda', body: 'Pulsa «¡Quiero canjear!» para buscar un bono con tus puntos.' },
-  { screen: 'portal', target: '[data-club-next="marketplace"]', title: 'Elige Bonos', body: 'Aquí también ves tus puntos en la esquina superior derecha. Entra a «Bonos» para ver las opciones.' },
-  { screen: 'marketplace', target: '.club-ticket-grid', title: 'Elige tu bono', body: 'Puedes canjear cualquiera de estos cuatro bonos por 5,000 puntos. Pulsa «Canjear» en el que prefieras.' },
-  { screen: 'terms', target: '.club-detail-redeem-hotspot', title: 'Lee los términos y condiciones', body: 'Revisa las condiciones del bono. Cuando termines de leerlas, pulsa «Canjear».' },
+  { screen: 'home', target: '.club-redemption-target', title: 'Entra a la tienda', body: 'Pulsa "¡Quiero canjear!" para buscar un bono con tus puntos.' },
+  { screen: 'portal', target: '.club-portal-list', title: 'Elige Bonos', body: 'Aquí también ves tus puntos en la esquina superior derecha. Entra a "Bonos" para ver las opciones.' },
+  { screen: 'marketplace', target: '.club-ticket-grid', title: 'Elige tu bono', body: 'Puedes canjear cualquiera de estos cuatro bonos por 5,000 puntos. Pulsa "Canjear" en el que prefieras.' },
+  { screen: 'terms', target: '.club-detail-redeem-hotspot', title: 'Lee los términos y condiciones', body: 'Revisa las condiciones del bono. Cuando termines de leerlas, pulsa "Canjear".' },
   { screen: 'success', target: '.club-success-modal' }
 ];
 const clubJourneyPointerSteps = new Set([1, 2, 4]);
-const clubJourneyRequiredActions = { 1: 'Pulsa «Quiero canjear»', 2: 'Pulsa «Bonos»', 3: 'Pulsa «Canjear»', 4: 'Pulsa «Canjear»' };
+const clubJourneyRequiredActions = { 1: 'Pulsa "Quiero canjear"', 2: 'Pulsa "Bonos"', 3: 'Pulsa "Canjear"', 4: 'Pulsa "Canjear"' };
 
+function clubJourneyDevice() { return window.matchMedia('(max-width:768px)').matches ? 'mobile' : 'web'; }
+function clubJourneyTune(stepIndex) {
+  const key = clubJourneyDevice() + ':' + stepIndex;
+  if (!clubJourney.cursorTunes[key]) {
+    let saved;
+    try { saved = JSON.parse(localStorage.getItem('olimpo-canje-flecha-' + key)); } catch {}
+    clubJourney.cursorTunes[key] = { x: 0, y: 0, rotation: null, flip: true, ...saved };
+  }
+  return clubJourney.cursorTunes[key];
+}
 function clubJourneyCursorTuner(stepIndex) {
-  const tune = clubJourney.cursorTunes[stepIndex] || { x: 0, y: 0, rotation: 0 };
-  return `<section class="club-cursor-tuner club-journey-cursor-tuner" aria-label="Ajustar cursor del paso ${stepIndex + 1}"><strong>Ajustar cursor</strong><label>Eje X <output data-club-journey-cursor-value="x">${tune.x} px</output><input data-club-journey-cursor="x" type="range" min="-120" max="120" value="${tune.x}"></label><label>Eje Y <output data-club-journey-cursor-value="y">${tune.y} px</output><input data-club-journey-cursor="y" type="range" min="-120" max="120" value="${tune.y}"></label><label>Rotación <output data-club-journey-cursor-value="rotation">${tune.rotation}°</output><input data-club-journey-cursor="rotation" type="range" min="-180" max="180" value="${tune.rotation}"></label></section>`;
+  const tune = clubJourneyTune(stepIndex);
+  return '<details class="club-cursor-tuner club-journey-cursor-tuner"><summary>Ajustar flecha · ' + clubJourneyDevice() + ' · paso ' + (stepIndex + 1) + '</summary><label>Eje X <output data-club-journey-cursor-value="x">' + tune.x + ' px</output><input data-club-journey-cursor="x" type="range" min="-200" max="200" value="' + tune.x + '"></label><label>Eje Y <output data-club-journey-cursor-value="y">' + tune.y + ' px</output><input data-club-journey-cursor="y" type="range" min="-200" max="200" value="' + tune.y + '"></label><label>Rotación <output data-club-journey-cursor-value="rotation">' + (tune.rotation ?? 0) + '°</output><input data-club-journey-cursor="rotation" type="range" min="-360" max="360" value="' + (tune.rotation ?? 0) + '"></label><label>Flip horizontal <select data-club-journey-cursor="flip"><option value="true" ' + (tune.flip ? 'selected' : '') + '>Sí</option><option value="false" ' + (!tune.flip ? 'selected' : '') + '>No</option></select></label></details>';
+}
+function animateClubJourneyPoints() {
+  cancelAnimationFrame(clubJourney.pointsFrame);
+  const nodes = clubJourney.layer.querySelectorAll('[data-club-points]');
+  if (window.matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  nodes.forEach(node => node.textContent = '0');
+  const start = performance.now();
+  const frame = now => {
+    if (!clubJourney.layer || clubJourney.step !== 0) return;
+    const progress = Math.min(1, (now - start) / 1600);
+    const value = Math.round(5000 * (1 - Math.pow(1 - progress, 3)));
+    nodes.forEach(node => node.textContent = value.toLocaleString('en-US'));
+    if (progress < 1) clubJourney.pointsFrame = requestAnimationFrame(frame);
+  };
+  clubJourney.pointsFrame = requestAnimationFrame(frame);
 }
 
+function syncClubJourneyTuner(tune) {
+  const panel = clubJourney.layer?.querySelector('.club-journey-cursor-tuner');
+  if (!panel) return;
+  panel.querySelector('summary').textContent = 'Ajustar flecha · ' + clubJourneyDevice() + ' · paso ' + (clubJourney.step + 1);
+  for (const key of ['x', 'y', 'rotation']) {
+    panel.querySelector('[data-club-journey-cursor="' + key + '"]').value = tune[key] ?? 0;
+    panel.querySelector('[data-club-journey-cursor-value="' + key + '"]').textContent = (tune[key] ?? 0) + (key === 'rotation' ? '°' : ' px');
+  }
+  panel.querySelector('[data-club-journey-cursor="flip"]').value = String(tune.flip);
+}
 function clubCoachmark(stepIndex) {
   const step = clubRedemptionSteps[stepIndex];
   const current = stepIndex + 1;
@@ -833,7 +871,7 @@ function clubCoachmark(stepIndex) {
   const { title, body } = step;
   if (step.screen === 'terms') return `<aside class="club-prototype-coachmark" id="clubJourneyCoachmark" role="status"><button class="club-coachmark-close" data-club-close type="button" aria-label="Cerrar guía">×</button><span>Canjea tu bono</span><strong>${title}</strong><p>${body}</p></aside>`;
   const requiredAction = clubJourneyRequiredActions[stepIndex];
-  return `<aside class="club-prototype-coachmark" id="clubJourneyCoachmark" role="status"><button class="club-coachmark-close" data-club-close type="button" aria-label="Cerrar guía">×</button><span>Canjea tu bono</span><strong>${title}</strong><p>${body}</p><span>Paso ${current} de ${total}</span>${tourProgressBar(current, total)}<div class="club-orientation-controls"><button data-club-journey-prev type="button" ${stepIndex === 0 ? 'disabled' : ''}>Anterior</button><button data-club-journey-next type="button" ${requiredAction ? 'disabled' : ''}>${requiredAction || (stepIndex === total - 1 ? 'Finalizar' : 'Siguiente')}</button></div></aside>`;
+  return `<aside class="club-prototype-coachmark" id="clubJourneyCoachmark" role="status"><button class="club-coachmark-close" data-club-close type="button" aria-label="Cerrar guía">×</button><span>Canjea tu bono</span><strong>${title}</strong><p>${body}</p><span>Paso ${current} de ${total}</span>${tourProgressBar(current, total)}<div class="club-orientation-controls"><button data-club-journey-prev type="button" ${stepIndex === 0 ? 'disabled' : ''}>Anterior</button><button data-club-journey-next type="button" ${requiredAction ? 'disabled' : ''}>${requiredAction ? 'Siguiente' : (stepIndex === total - 1 ? 'Finalizar' : 'Siguiente')}</button></div></aside>`;
 }
 
 function positionClubJourneyCoachmark(target, coachmark) {
@@ -871,12 +909,18 @@ function positionClubJourneyCoachmark(target, coachmark) {
 
 function positionClubGuidePointer(target, coachmark, pointer, stepIndex) {
   if (!target || !pointer) return;
+  if (stepIndex === 2) target = clubJourney.layer.querySelector('[data-club-next="marketplace"]');
+  const tune = clubJourneyTune(stepIndex);
   const rect = target.getBoundingClientRect();
-  if (clubJourney.layer?.dataset.clubScreen === 'terms') {
+  if (clubJourney.layer?.dataset.clubScreen === 'terms' || stepIndex === 2) {
     const mobile = window.matchMedia('(max-width:768px)').matches;
-    pointer.style.left = `${mobile ? rect.left + rect.width / 2 - 24 : Math.max(4, rect.left - 48)}px`;
-    pointer.style.top = `${mobile ? rect.top - 46 : rect.top + rect.height / 2 - 24}px`;
-    pointer.style.setProperty('--club-pointer-rotation', mobile ? '225deg' : '315deg');
+    const above = mobile || stepIndex === 2;
+    pointer.style.left = `${(above ? rect.left + rect.width / 2 - 24 : Math.max(4, rect.left - 48)) + tune.x}px`;
+    pointer.style.top = `${(above ? rect.top - 46 : rect.top + rect.height / 2 - 24) + tune.y}px`;
+    if (tune.rotation === null) tune.rotation = above ? 225 : 315;
+    pointer.style.setProperty('--club-pointer-rotation', tune.rotation + 'deg');
+    pointer.style.setProperty('--club-pointer-flip', tune.flip ? '-1' : '1');
+    syncClubJourneyTuner(tune);
     return;
   }
   const card = coachmark?.getBoundingClientRect();
@@ -900,14 +944,9 @@ function positionClubGuidePointer(target, coachmark, pointer, stepIndex) {
     top = rect.top + rect.height / 2 - pointerSize / 2;
     rotation = '180deg';
   }
-  let tune = clubJourney.cursorTunes[stepIndex];
-  if (!tune) {
-    tune = clubJourney.cursorTunes[stepIndex] = { x: 0, y: 0, rotation: Number.parseInt(rotation, 10) };
-    const rotationControl = clubJourney.layer.querySelector('[data-club-journey-cursor="rotation"]');
-    if (rotationControl) rotationControl.value = String(tune.rotation);
-    const rotationValue = clubJourney.layer.querySelector('[data-club-journey-cursor-value="rotation"]');
-    if (rotationValue) rotationValue.textContent = `${tune.rotation}°`;
-  }
+  if (tune.rotation === null) tune.rotation = Number.parseInt(rotation, 10);
+  syncClubJourneyTuner(tune);
+  pointer.style.setProperty('--club-pointer-flip', tune.flip ? '-1' : '1');
   pointer.style.left = `${Math.max(4, Math.min(window.innerWidth - pointerSize - 4, left + tune.x))}px`;
   pointer.style.top = `${Math.max(4, Math.min(window.innerHeight - pointerSize - 4, top + tune.y))}px`;
   pointer.style.setProperty('--club-pointer-rotation', `${tune.rotation}deg`);
@@ -1146,11 +1185,11 @@ function startClubOrientationGuide() {
 function clubHomeScreen({ guide = true } = {}) {
   const rewardItems = [['pizza-cutout.png', 'Fast food', 'Pizza'], ['tv-cutout.png', 'Audio y Tecnología', 'TV'], ['coffee-cutout.png', 'Electrohogar', 'Cafetera'], ['perfume-cutout.png', 'Cuidado personal', 'Perfume']]
     .map(([asset, label, alt]) => `<span><i><img src="assets/imgs/club/${asset}" alt="${alt}"></i><small>${label}</small></span>`).join('');
-  return `${clubHeader('', 'main')}<main class="club-home-screen"><section class="club-home-hero" aria-label="Club Olimpo"><picture><source media="(max-width:768px)" srcset="https://www.olimpo.bet/assets/img/clubOlimpo/banners/guerrero.png"><img src="https://www.olimpo.bet/assets/img/clubOlimpo/banners/desktop/guerrero.png" alt="Empieza como Guerrero"></picture></section><section class="club-home-summary"><div class="club-level" tabindex="-1"><p>Necesitas <b>798 puntos de nivel</b> más para ser Espartano.</p><div class="club-level-track"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="club-level-labels"><span>Guerrero<b>0 P</b></span><span>Espartano<b>800 P</b></span><span>Héroe<b>5,000 P</b></span><span>Rey<b>25,000 P</b></span><span>Titán<b>100,000 P</b></span><span>Dios<b>400,000 P</b></span></div><button type="button">Ver nivel</button></div><div class="club-points-card" tabindex="-1"><div class="club-points-summary-target"><h2>Tienes <b>${clubPoints}</b> puntos canjeables</h2><p>ⓘ 0 puntos vencerán el 30/12/2026</p></div><div><button class="club-redemption-target" data-club-next="portal" type="button">¡Quiero canjear!</button><button type="button">Ver historial</button></div></div></section><section class="club-levels-preview"><h2>Niveles de divinidad</h2><p>Explora cada nivel y descubre los beneficios exclusivos que desbloqueas conforme avanzas.</p><div><article><strong>Nivel GUERRERO</strong><span>Desbloqueado con 0 puntos</span></article><article><strong>Nivel ESPARTANO</strong><span>Desbloqueado con 800 puntos</span></article><article><strong>Nivel HÉROE</strong><span>Desbloqueado con 5,000 puntos</span></article></div></section><section class="club-rewards-preview" tabindex="-1" aria-label="Qué puedes canjear"><h2>¿Qué puedes canjear?</h2><div>${rewardItems}</div><button class="club-store-link" type="button">Ir a la tienda</button></section></main>`;
+  return `${clubHeader('', 'main')}<main class="club-home-screen"><section class="club-home-hero" aria-label="Club Olimpo"><picture><source media="(max-width:768px)" srcset="https://www.olimpo.bet/assets/img/clubOlimpo/banners/guerrero.png"><img src="https://www.olimpo.bet/assets/img/clubOlimpo/banners/desktop/guerrero.png" alt="Empieza como Guerrero"></picture></section><section class="club-home-summary"><div class="club-level" tabindex="-1"><p>Necesitas <b>798 puntos de nivel</b> más para ser Espartano.</p><div class="club-level-track"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="club-level-labels"><span>Guerrero<b>0 P</b></span><span>Espartano<b>800 P</b></span><span>Héroe<b>5,000 P</b></span><span>Rey<b>25,000 P</b></span><span>Titán<b>100,000 P</b></span><span>Dios<b>400,000 P</b></span></div><button type="button">Ver nivel</button></div><div class="club-points-card" tabindex="-1"><div class="club-points-summary-target"><h2>Tienes <b><span data-club-points>${clubPoints}</span></b> puntos canjeables</h2><p>ⓘ 0 puntos vencerán el 30/12/2026</p></div><div><button class="club-redemption-target" data-club-next="portal" type="button">¡Quiero canjear!</button><button type="button">Ver historial</button></div></div></section><section class="club-levels-preview"><h2>Niveles de divinidad</h2><p>Explora cada nivel y descubre los beneficios exclusivos que desbloqueas conforme avanzas.</p><div><article><strong>Nivel GUERRERO</strong><span>Desbloqueado con 0 puntos</span></article><article><strong>Nivel ESPARTANO</strong><span>Desbloqueado con 800 puntos</span></article><article><strong>Nivel HÉROE</strong><span>Desbloqueado con 5,000 puntos</span></article></div></section><section class="club-rewards-preview" tabindex="-1" aria-label="Qué puedes canjear"><h2>¿Qué puedes canjear?</h2><div>${rewardItems}</div><button class="club-store-link" type="button">Ir a la tienda</button></section></main>`;
 }
 
 function clubPortalScreen() {
-  return `${clubHeader('bonuses')}<main class="club-portal-screen"><img class="club-portal-banner" src="https://d3ekkuiebeebts.cloudfront.net/public/web/img/banners/OB_BANNER_TIENDA_SORTEO_1920X512.png" alt="Sorteo de aniversario Club Olimpo"><section class="club-portal-categories"><h2>¡Bienvenido al Club Olimpo!</h2><div class="club-portal-list"><button type="button"><span>Productos</span><img src="https://d3ekkuiebeebts.cloudfront.net/public/web/img/product-preview.png" alt=""></button><button type="button"><span>Experiencias</span><img src="https://d3ekkuiebeebts.cloudfront.net/public/web/img/experience-preview.png" alt=""></button><button data-club-next="marketplace" type="button"><span>Bonos</span><img src="https://d3ekkuiebeebts.cloudfront.net/public/web/img/bonus-preview.png" alt=""></button></div></section></main>`;
+  return `${clubHeader('bonuses')}<main class="club-portal-screen"><img class="club-portal-banner" src="https://d3ekkuiebeebts.cloudfront.net/public/web/img/banners/OB_BANNER_TIENDA_SORTEO_1920X512.png" alt="Sorteo de aniversario Club Olimpo"><section class="club-portal-categories"><h2>¡Bienvenido al Club Olimpo!</h2><div class="club-portal-list"><button type="button" disabled><span>Productos</span><img src="https://d3ekkuiebeebts.cloudfront.net/public/web/img/product-preview.png" alt=""></button><button type="button" disabled><span>Experiencias</span><img src="https://d3ekkuiebeebts.cloudfront.net/public/web/img/experience-preview.png" alt=""></button><button data-club-next="marketplace" type="button"><span>Bonos</span><img src="https://d3ekkuiebeebts.cloudfront.net/public/web/img/bonus-preview.png" alt=""></button></div></section></main>`;
 }
 
 function clubMarketplaceScreen({ guide = true } = {}) {
@@ -1187,6 +1226,7 @@ function clubSuccessScreen() {
 function renderClubJourney(stepIndex = clubJourney.step) {
   if (!clubJourney.layer) return;
   window.clearTimeout(clubJourney.timer);
+  clubJourney.geometryObserver?.disconnect();
   const previousScreen = clubJourney.layer.dataset.clubScreen;
   const persistentCoachmark = clubJourney.layer.querySelector('#clubJourneyCoachmark');
   const persistentFocus = clubJourney.layer.querySelector('.club-journey-focus');
@@ -1201,6 +1241,7 @@ function renderClubJourney(stepIndex = clubJourney.step) {
   if (persistentCoachmark && step.screen !== 'success') clubJourney.layer.append(persistentCoachmark);
   if (persistentFocus && step.screen !== 'success') clubJourney.layer.append(persistentFocus);
   if (previousScreen !== step.screen) clubJourney.layer.scrollTop = 0;
+  if (stepIndex === 0) animateClubJourneyPoints();
   if (step.screen === 'success') return;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   clubJourney.timer = window.setTimeout(() => {
@@ -1210,6 +1251,8 @@ function renderClubJourney(stepIndex = clubJourney.step) {
     target.classList.add('club-guide-target');
     target.setAttribute('tabindex', target.hasAttribute('tabindex') ? target.getAttribute('tabindex') : '-1');
     target.setAttribute('aria-describedby', 'clubJourneyCoachmark');
+    clubJourney.geometryObserver = new ResizeObserver(() => positionClubJourneyUI());
+    clubJourney.geometryObserver.observe(target);
     clubJourney.layer.classList.add('is-guide-active');
     clubJourney.layer.dataset.clubGuideState = 'guided';
     if (persistentCoachmark) {
@@ -1242,6 +1285,7 @@ function advanceClubJourney(delta, { viaTarget = false } = {}) {
 
 function closeClubJourney() {
   window.clearTimeout(clubJourney.timer);
+  clubJourney.geometryObserver?.disconnect();
   clubJourney.layer?.remove();
   clubJourney.layer = null;
   clubJourney.step = 0;
@@ -1275,9 +1319,10 @@ function startClubRedemptionJourney() {
     const control = event.target.closest('[data-club-journey-cursor]');
     if (!control) return;
     const key = control.dataset.clubJourneyCursor;
-    const tune = clubJourney.cursorTunes[clubJourney.step] ||= { x: 0, y: 0, rotation: 0 };
-    tune[key] = Number(control.value);
-    layer.querySelector(`[data-club-journey-cursor-value="${key}"]`).textContent = `${control.value}${key === 'rotation' ? '°' : ' px'}`;
+    const tune = clubJourneyTune(clubJourney.step);
+    tune[key] = key === 'flip' ? control.value === 'true' : Number(control.value);
+    try { localStorage.setItem('olimpo-canje-flecha-' + clubJourneyDevice() + ':' + clubJourney.step, JSON.stringify(tune)); } catch {}
+    syncClubJourneyTuner(tune);
     positionClubJourneyUI();
   });
   layer.addEventListener('scroll', positionClubJourneyUI, { passive: true, capture: true });

@@ -891,6 +891,24 @@ body[data-guide-debug] .club-cursor-tuner{display:grid}
 .initial-onboarding-overlay[data-stage="summary"] .initial-onboarding-coachmark>strong{margin-top:0}
 .initial-onboarding-overlay[data-stage="summary"] .initial-onboarding-coachmark>strong{padding-right:34px}
 .bonus-entry-overlay .bonus-tour-coachmark{z-index:67}
+.initial-onboarding-controls [data-initial-prev],
+.bonus-tour-controls [data-bonus-prev],
+.deposit-flow-controls [data-deposit-prev],
+.guide-modal-actions [data-guide-prev],
+.club-orientation-controls [data-club-orientation-prev],
+.club-orientation-controls [data-club-journey-prev]{background:transparent!important;border:1px solid #9ee86e!important;color:#9ee86e!important}
+.initial-onboarding-controls [data-initial-prev]:disabled,
+.bonus-tour-controls [data-bonus-prev]:disabled,
+.deposit-flow-controls [data-deposit-prev]:disabled,
+.guide-modal-actions [data-guide-prev]:disabled,
+.club-orientation-controls [data-club-orientation-prev]:disabled,
+.club-orientation-controls [data-club-journey-prev]:disabled{border-color:#65735d!important;color:#84937b!important}
+.club-coachmark-pointer{transform:scaleX(var(--club-pointer-flip,-1)) rotate(var(--club-pointer-rotation,0deg))}
+.club-journey-cursor-tuner{display:block;z-index:120;max-height:calc(100dvh - 110px);overflow:auto;top:8px;bottom:auto}
+.club-journey-cursor-tuner summary{cursor:pointer;font-weight:700}
+.club-journey-cursor-tuner label{margin-top:10px}
+.club-journey-cursor-tuner select{color:#fff;background:#19572c;border:1px solid #9ee86e;border-radius:6px;padding:4px}
+.club-portal-list button:disabled{opacity:1;cursor:default}
 .club-redemption-layer[data-club-screen="terms"]::after,
 .club-redemption-layer[data-club-screen="terms"] .club-ticket-detail-layout::after,
 .club-redemption-layer[data-club-screen="terms"] .club-journey-focus{display:none}

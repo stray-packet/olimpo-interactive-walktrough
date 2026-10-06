@@ -92,7 +92,7 @@ function renderBonusTourStep() {
   target.classList.add('bonus-tour-target');
   const coachmark = bonusTour.layer.querySelector('.bonus-tour-coachmark');
   const nextButton = step.action
-    ? (step.lockedNextLabel ? `<button type="button" disabled>${step.lockedNextLabel}</button>` : '')
+    ? '<button data-bonus-next type="button" disabled>Siguiente</button>'
     : `<button data-bonus-next type="button">${bonusTour.step === bonusTourSteps.length - 1 ? 'Finalizar recorrido' : 'Continuar'}</button>`;
   coachmark.innerHTML = bonusTourCoachmarkContent(step, nextButton);
   requestAnimationFrame(() => { positionBonusTourStep(); if (step.action) target.focus({ preventScroll: true }); });
@@ -115,7 +115,7 @@ function startBonusTour() {
   showBonusTourEntry();
 }
 
-function bonusTourCoachmarkContent(step, nextButton = '') {
+function bonusTourCoachmarkContent(step, nextButton = '<button data-bonus-next type="button" disabled>Siguiente</button>') {
   return `<button class="bonus-tour-close" data-bonus-close type="button" aria-label="Cerrar recorrido">×</button><span>Conoce tus bonos</span><strong>${step.title}</strong><p>${step.body}</p><span>Paso ${bonusTour.step + 1} de ${bonusTourSteps.length}</span><div class="bonus-tour-progress" style="--bonus-tour-step-count:${bonusTourSteps.length}">${bonusTourSteps.map((_, index) => `<i class="${index <= bonusTour.step ? 'is-filled' : ''}"></i>`).join('')}</div><div class="bonus-tour-controls"><button data-bonus-prev type="button" ${bonusTour.step === 0 ? 'disabled' : ''}>Anterior</button>${nextButton}</div>`;
 }
 
