@@ -1,0 +1,7 @@
+{
+  "name": "olimpo-interactive-walkthrough",
+  "private": true,
+  "scripts": {
+    "build:site": "node scripts/package-site.mjs"
+  }
+}

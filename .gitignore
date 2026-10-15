@@ -1,0 +1,28 @@
+**/node_modules/
+**/dist/
+**/build/
+**/.cache/
+**/.vite/
+**/.figma/
+**/.capture-mobile-profile*/
+**/.env
+**/.env.*
+**/*.tsbuildinfo
+**/*-debug.log*
+**/*.log
+**/Thumbs.db
+**/.DS_Store
+
+# Material de trabajo personal y capturas usadas en Figma
+/internal/
+/presentations/
+/handoff/
+/docs/
+/OLIMPO_DISCOVERY_HANDOFF.md
+/index.html
+/package-lock.json
+/prototype/**/*.md
+
+# Herramientas locales de revisión y generación
+/scripts/*
+!/scripts/package-site.mjs
